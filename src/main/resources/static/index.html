@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stability.AI Demo</title>
+    <style>
+        img {
+            width: 300px;
+            margin: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+<h2>Stability.AI Image Generation</h2>
+<form id="genForm">
+    <input id="prompt" placeholder="Enter prompt" required size="50" type="text"/>
+    <select id="style">
+        <option value="cinematic">cinematic</option>
+        <option value="photographic">photographic</option>
+        <option value="analog-film">analog film</option>
+        <option value="fantasy-art">fantasy art</option>
+    </select>
+    <button type="submit">Generate</button>
+</form>
+
+<div id="results"></div>
+
+<script>
+    document.getElementById("genForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const prompt = document.getElementById("prompt").value;
+        const style = document.getElementById("style").value;
+        const res = await fetch(`/ai/image/generate?message=${encodeURIComponent(prompt)}&style=${encodeURIComponent(style)}&count=4`);
+        const images = await res.json();
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+        images.forEach(img => {
+            const imageEl = document.createElement("img");
+            imageEl.src = img;
+            resultsDiv.appendChild(imageEl);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Chat</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+    >
+</head>
+<body class="bg-light">
+
+<div class="container mt-4" style="max-width: 800px;">
+    <h3 class="mb-3">Audio Chat</h3>
+
+    <div class="mb-3">
+        <button class="btn btn-danger me-2" id="recordBtn">
+            Start Recording
+        </button>
+        <button class="btn btn-secondary" disabled id="stopBtn">
+            Stop Recording
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <strong>Status:</strong>
+        <span id="status">Idle</span>
+    </div>
+
+    <hr/>
+
+    <h5>Transcript</h5>
+    <pre class="bg-white p-3 border rounded" id="transcript"></pre>
+
+    <h5 class="mt-3">AI Response</h5>
+    <pre class="bg-white p-3 border rounded" id="aiResponse"></pre>
+
+    <h5 class="mt-3">AI Voice Response</h5>
+    <audio controls id="audioPlayer"></audio>
+</div>
+
+<script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    const recordBtn = document.getElementById("recordBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusEl = document.getElementById("status");
+    const transcriptEl = document.getElementById("transcript");
+    const aiResponseEl = document.getElementById("aiResponse");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    recordBtn.onclick = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = sendAudio;
+
+        mediaRecorder.start();
+        statusEl.textContent = "Recording...";
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+        mediaRecorder.stop();
+        statusEl.textContent = "Processing...";
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+
+        transcriptEl.textContent = "";
+        aiResponseEl.textContent = "";
+    };
+
+    async function sendAudio() {
+        const audioBlob = new Blob(audioChunks, {type: "audio/webm"});
+        const formData = new FormData();
+        formData.append("file", audioBlob, "recording.webm");
+
+        try {
+            const res = await fetch("/ai/chat/audio/voice", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!res.ok) {
+                statusEl.textContent = "Error: " + res.status;
+                return;
+            }
+
+            transcriptEl.textContent = res.headers.get("X-Transcript") || "";
+            aiResponseEl.textContent = res.headers.get("X-AI-Response") || "";
+
+            const audioBytes = await res.blob();
+            audioPlayer.src = URL.createObjectURL(audioBytes);
+
+            statusEl.textContent = "Done";
+        } catch (err) {
+            statusEl.textContent = "Request failed";
+        }
+    }
+</script>
+
+</body>
+</html>
