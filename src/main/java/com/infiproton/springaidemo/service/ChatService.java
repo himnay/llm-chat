@@ -41,11 +41,12 @@ public class ChatService {
                 new SystemMessage("Today’s date is " + today + ". " +
                         "You are a friendly travel guide. Suggest 3 attractions and 1 food item.")
         ));
+
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory)
+                .conversationId(convId)
+                .build();
         return chatClient.prompt(prompt)
-                .advisors(new QuestionAnswerAdvisor(vectorStore),
-                        MessageChatMemoryAdvisor.builder(chatMemory)
-                                .conversationId(convId)
-                                .build())
+                .advisors(new QuestionAnswerAdvisor(vectorStore), messageChatMemoryAdvisor)
                 .tools(weatherTools, contactsTool)
                 .user(message)
                 .call().content();
