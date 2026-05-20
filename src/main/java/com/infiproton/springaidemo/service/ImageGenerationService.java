@@ -5,8 +5,11 @@ import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.stabilityai.api.StabilityAiImageOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,17 +22,17 @@ public class ImageGenerationService {
         this.imageModel = imageModel;
     }
 
-    public List<String> generate(String message, String style, Integer count) {
+    public ResponseEntity<byte[]> generate(String message, String style, Integer count) {
         ImagePrompt prompt = new ImagePrompt(message,
                 StabilityAiImageOptions.builder()
                         .stylePreset(style)
                         .N(count)
                         .responseFormat("b64_json")
                         .build());
+
         ImageResponse imageResponse = imageModel.call(prompt);
 
-        return imageResponse.getResults().stream()
-                .map(r -> "data:image/png;base64," + r.getOutput().getB64Json())
-                .collect(Collectors.toList());
+        byte[] png = Base64.getDecoder().decode(imageResponse.getResult().getOutput().getB64Json());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(png);
     }
 }
