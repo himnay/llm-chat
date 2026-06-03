@@ -1,0 +1,19 @@
+  ____             _               _               _    ___          ____ _           _
+ / ___| _ __  _ __(_)_ __   __ _  | |    ___  ___| |_ / _ \        / ___| |__   __ _| |_
+ \___ \| '_ \| '__| | '_ \ / _` | | |   / _ \/ __| __| | | |_____ | |   | '_ \ / _` | __|
+  ___) | |_) | |  | | | | | (_| | | |__|  __/\__ \ |_| |_| |_____| |___| | | | (_| | |_
+ |____/| .__/|_|  |_|_| |_|\__, | |_____\___||___/\__|\___/        \____|_| |_|\__,_|\__|
+       |_|                 |___/
+
+Spring-AI-Chat
+
+:: Project Metadata ::
+- Project Name      : ${app.metadata.project-name}
+- Description       : ${app.metadata.description}
+- Group Id          : ${app.metadata.group-id}
+- Artifact Id       : ${app.metadata.artifact-id}
+- Project Version   : ${app.metadata.project-version}
+- Spring Boot       : ${spring-boot.version}
+- Spring AI         : ${app.metadata.spring-ai-version}
+- Java Version      : ${java.version}
+- Database          : ${app.metadata.database}

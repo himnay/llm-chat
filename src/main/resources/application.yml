@@ -1,6 +1,17 @@
+server:
+  port: ${SERVER_PORT:8082}   # 8080=llm-gateway, 8081=llm-rag-pipeline, 8082=llm-chat
+  shutdown: graceful   # drain in-flight requests on SIGTERM (rolling deploys)
+  servlet:
+    context-path: /ai
+
 spring:
   application:
-    name: Spring AI Demo
+    name: llm-chat
+  lifecycle:
+    timeout-per-shutdown-phase: 30s   # bound graceful-shutdown drain time
+  docker: # Containers are started via docker-compose; disable Boot's auto-management.
+    compose:
+      enabled: false
   servlet:
     multipart:
       enabled: true
@@ -9,9 +20,9 @@ spring:
       file-size-threshold: 2KB
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${OPENAI_API_KEY:sk-placeholder}
     stabilityai:
-      api-key: ${STABILITYAI_API_KEY}
+      api-key: ${STABILITYAI_API_KEY:sk-placeholder}
       image:
         options:
           model: stable-diffusion-xl-1024-v1-0
@@ -24,14 +35,14 @@ spring:
       redis:
         initialize-schema: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/spring_ai
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:llm_chat}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -39,12 +50,58 @@ spring:
     baseline-version: 0
     baseline-description: existing schema
 
-#logging:
-#    level:
-#        root: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      # Only expose component details to authorized callers — avoids leaking DB/Redis
+      # internals to anonymous clients.
+      show-details: when-authorized
+      probes:
+        enabled: true   # exposes /actuator/health/{liveness,readiness} for K8s
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/traces
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 50ms,100ms,200ms,300ms,500ms,1s,2s,5s
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}/%X{spanId}] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.org.llm: INFO
+    org.springframework.ai: INFO
+    org.springframework.web: INFO
+
 app:
+  metadata:
+    project-name: LLM Chat
+    description: Production-grade Spring AI chat backend — chat, audio, image, file and text-to-SQL.
+    group-id: com.org.llm
+    artifact-id: llm-chat
+    project-version: 0.0.1-SNAPSHOT
+    spring-ai-version: 2.0.0-M8
+    database: PostgreSQL
+  loader:
+    pdf:
+      mode: page # page | paragraph
+  chunking:
+    strategy: fixed-size
   weather:
-    api-key: ${WEATHER_API_KEY}
+    api-key: ${WEATHER_API_KEY:}
   documents:
     travel-policy:
       file:
@@ -52,3 +109,21 @@ app:
     events:
       file:
         path: documents/AtlasCorp_Events_Holidays.pdf
+  # ── Upstream LLM gateway ──────────────────────────────────────────────────────
+  gateway:
+    enabled: ${GATEWAY_ENABLED:true}             # route chat/structured/image via llm-gateway
+    base-url: ${GATEWAY_BASE_URL:http://localhost:8080/llm}
+    api-key: ${GATEWAY_API_KEY:}                 # only needed if the gateway has auth enabled
+    provider: ${GATEWAY_PROVIDER:openai}         # openai | anthropic | ollama | google | huggingface | cohere
+    model: ${GATEWAY_MODEL:}                     # blank = gateway's per-provider default
+    image-model: ${GATEWAY_IMAGE_MODEL:dall-e-3}
+    timeout-seconds: 60
+  # ── API-key security ──────────────────────────────────────────────────────────
+  security:
+    auth-enabled: ${API_AUTH_ENABLED:true}     # set false for fully-open local runs
+    header: X-API-Key
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}  # comma-separated; empty = no cross-origin browser access
+    rate-limit:
+      enabled: ${RATE_LIMIT_ENABLED:true}      # token bucket per API key (or client IP)
+      capacity: 120                            # burst size
+      refill-per-minute: 120                   # sustained requests/min

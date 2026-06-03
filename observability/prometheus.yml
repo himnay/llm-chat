@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'llm-chat'
+    metrics_path: /ai/actuator/prometheus   # app runs under server.servlet.context-path=/ai
+    static_configs:
+      - targets: ['host.docker.internal:8082']   # the chat app runs on the host, port 8082
+    scrape_interval: 10s

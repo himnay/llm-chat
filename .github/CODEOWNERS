@@ -1,0 +1,7 @@
+# Default owners for everything in this repo.
+# Review is requested from these owners on every PR.
+* @Himansu-Nayak
+
+# Security-sensitive areas — keep an extra eye here.
+/src/main/java/com/org/llm/security/  @Himansu-Nayak
+/src/main/resources/db/migration/     @Himansu-Nayak

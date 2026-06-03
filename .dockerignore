@@ -1,0 +1,13 @@
+target/
+logs/
+.git/
+.github/
+.idea/
+*.iml
+.gradle/
+build/
+.DS_Store
+*.md
+observability/
+docker-compose.yml
+insomnia-spring-ai-chat.json

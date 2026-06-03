@@ -1,0 +1,16 @@
+apiVersion: 1
+
+# Auto-loads every dashboard JSON sitting next to this file so it appears in
+# Grafana automatically without a manual import.
+providers:
+  - name: 'LLM Chat'
+    orgId: 1
+    folder: 'LLM Chat'
+    folderUid: llm-chat-folder
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

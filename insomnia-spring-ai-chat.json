@@ -1,0 +1,311 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-05-30T21:46:42.425+01:00",
+  "__export_source": "insomnia.desktop.app:v10.3.0",
+  "resources": [
+    {
+      "_id": "wrk_spring_ai_chat",
+      "_type": "workspace",
+      "name": "spring-ai-chat",
+      "description": "REST APIs for spring-ai-chat",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_spring_ai_chat_base",
+      "_type": "environment",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080"
+      }
+    },
+    {
+      "_id": "fld_chat",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Chat APIs"
+    },
+    {
+      "_id": "fld_audio",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Audio APIs"
+    },
+    {
+      "_id": "fld_image",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Image APIs"
+    },
+    {
+      "_id": "fld_file",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "File APIs"
+    },
+    {
+      "_id": "fld_recipe",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Recipe APIs"
+    },
+    {
+      "_id": "fld_text_to_sql",
+      "_type": "request_group",
+      "parentId": "wrk_spring_ai_chat",
+      "name": "Text To SQL APIs"
+    },
+    {
+      "_id": "req_chat",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Chat",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/chat",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"conversationId\": \"conv-1\",\n  \"message\": \"Plan a 2 day trip to Paris\",\n  \"imageName\": \"\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_chat_audio_voice",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Voice Chat",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/chat/audio/voice",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "file",
+            "type": "file",
+            "fileName": ""
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_chat_audio",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Chat With Audio",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/chat/audio",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "file",
+            "type": "file",
+            "fileName": ""
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_travel_guide",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Travel Guide",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ai/travel-guide",
+      "parameters": [
+        {
+          "name": "city",
+          "value": "Paris"
+        },
+        {
+          "name": "days",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "_id": "req_memory",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Get Memory",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ai/memory",
+      "parameters": [
+        {
+          "name": "conversationId",
+          "value": "conv-1"
+        }
+      ]
+    },
+    {
+      "_id": "req_chat_stream",
+      "_type": "request",
+      "parentId": "fld_chat",
+      "name": "Stream Chat (SSE)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/chat/stream",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"conversationId\": \"conv-1\",\n  \"message\": \"Tell me top attractions in Rome\",\n  \"imageName\": \"\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "text/event-stream"
+        }
+      ]
+    },
+    {
+      "_id": "req_audio_upload",
+      "_type": "request",
+      "parentId": "fld_audio",
+      "name": "Upload Audio",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/audio/upload",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "file",
+            "type": "file",
+            "fileName": ""
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_audio_to_speech",
+      "_type": "request",
+      "parentId": "fld_audio",
+      "name": "Text To Speech",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/audio/to-speech",
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "text",
+            "value": "Hello from spring ai"
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_audio_to_text",
+      "_type": "request",
+      "parentId": "fld_audio",
+      "name": "Speech To Text",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/audio/to-text",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "file",
+            "type": "file",
+            "fileName": ""
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_image_caption",
+      "_type": "request",
+      "parentId": "fld_image",
+      "name": "Image Caption",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/image/caption",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"conversationId\": \"\",\n  \"message\": \"Describe this image\",\n  \"imageName\": \"dog.jpg\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_image_generate",
+      "_type": "request",
+      "parentId": "fld_image",
+      "name": "Generate Image",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ai/image/generate",
+      "parameters": [
+        {
+          "name": "message",
+          "value": "sunset over mountains"
+        },
+        {
+          "name": "style",
+          "value": "realistic"
+        },
+        {
+          "name": "count",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "_id": "req_file_read",
+      "_type": "request",
+      "parentId": "fld_file",
+      "name": "Read File",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/file/read",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"conversationId\": \"\",\n  \"message\": \"Summarize this file\",\n  \"imageName\": \"policy.pdf\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_recipe",
+      "_type": "request",
+      "parentId": "fld_recipe",
+      "name": "Generate Recipe",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ai/recipe",
+      "parameters": [
+        {
+          "name": "dish",
+          "value": "paneer tikka"
+        }
+      ]
+    },
+    {
+      "_id": "req_text_to_sql",
+      "_type": "request",
+      "parentId": "fld_text_to_sql",
+      "name": "Text To SQL",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ai/text-to-sql",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"question\": \"Top 5 customers by delivered order amount\",\n  \"maxRows\": 5,\n  \"includeExplanation\": true,\n  \"dryRun\": false\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ]
+}
