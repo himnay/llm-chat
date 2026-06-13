@@ -8,7 +8,6 @@
         <groupId>com.org.llm</groupId>
         <artifactId>super-pom</artifactId>
         <version>1.0.0</version>
-        <relativePath/>
     </parent>
 
     <groupId>com.org.llm</groupId>
