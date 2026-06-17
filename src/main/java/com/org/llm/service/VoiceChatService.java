@@ -26,7 +26,7 @@ public class VoiceChatService {
         audioValidator.validate(file);
         StoredAudio stored = audioService.store(file);
         String transcript = audioService.speechToText(stored.storedFileName());
-        String aiResponse = chatService.chat(null, transcript);
+        String aiResponse = chatService.chat(null, transcript).answer();
         return new VoiceExchange(transcript, aiResponse);
     }
 

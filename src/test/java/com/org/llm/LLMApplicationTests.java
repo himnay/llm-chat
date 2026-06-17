@@ -5,7 +5,6 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(properties = {
         "spring.ai.vectorstore.redis.enabled=false",
@@ -14,7 +13,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
         "spring.ai.stabilityai.api-key=test-key"
 })
 @Import(TestcontainersConfiguration.class)
-@Testcontainers(disabledWithoutDocker = true)
 class LLMApplicationTests {
 
     @MockitoBean
