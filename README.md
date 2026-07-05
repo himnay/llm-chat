@@ -18,6 +18,92 @@ Spring Boot app with its own `application.yml`, API-key auth, and database (`spr
 > [`llm-rag-pipeline`](../llm-rag-pipeline) (ingestion + retrieval). This repo follows the same
 > security, observability and project conventions as those two.
 
+## 🗺️ Architecture
+
+The reactor is three independently deployable Spring Boot applications that share no runtime
+classpath, each fronted by its own security filter chain (`ApiKeyAuthFilter` → `RateLimitFilter`)
+and each free to call out to OpenAI/Stability AI directly or through the sibling `llm-gateway`
+service, selected per module by `app.gateway.enabled`. `llm-audio`'s voice-chat flow is the one
+place a module calls *another module in this repo* rather than an external provider — it delegates
+the actual chat reasoning to `llm-chat-agent` over plain HTTP.
+
+```mermaid
+flowchart LR
+    Client["Browser / curl / demo HTML pages"]
+
+    subgraph CA["llm-chat-agent : 8082"]
+        direction TB
+        CA_SEC["ApiKeyAuthFilter + RateLimitFilter\n(X-API-Key, token bucket)"]
+        CA_CTRL["ChatController · TextToSqlController\nFileRestController · RecipeController\nQueryTransformController"]
+        CA_ADV["ChatClient advisor chain:\nSafeGuardAdvisor → MessageChatMemoryAdvisor\n→ RetrievalAugmentationAdvisor → SimpleLoggerAdvisor"]
+        CA_SEC --> CA_CTRL --> CA_ADV
+    end
+
+    subgraph AU["llm-audio : 8083"]
+        direction TB
+        AU_SEC["ApiKeyAuthFilter + RateLimitFilter"]
+        AU_CTRL["AudioController · VoiceChatController"]
+        AU_VAL["AudioValidator\n(content-type allow-list)"]
+        AU_SVC["AudioService / VoiceChatService\nvalidate → store → transcribe → chat → synthesize"]
+        AU_SEC --> AU_CTRL --> AU_VAL --> AU_SVC
+    end
+
+    subgraph IM["llm-image : 8084"]
+        direction TB
+        IM_SEC["ApiKeyAuthFilter + RateLimitFilter"]
+        IM_CTRL["ImageRestController"]
+        IM_SVC["ImageCaptionService / ImageBackend\n(Gateway* or Local* strategy)"]
+        IM_SEC --> IM_CTRL --> IM_SVC
+    end
+
+    GW["llm-gateway : 8080 (sibling repo)\nprovider routing, guardrails, failover,\nper-session memory"]
+
+    PG[("PostgreSQL 18\nspring_ai / spring_ai_audio / spring_ai_image")]
+    REDIS[("Redis\nvector store (RAG chunks)")]
+    OPENAI[["OpenAI API\nGPT chat · Whisper STT · TTS-1"]]
+    STAB[["Stability AI\nstable-diffusion-xl-1024-v1-0"]]
+    OTEL["Prometheus · Grafana · Tempo · Loki"]
+
+    Client --> CA_SEC
+    Client --> AU_SEC
+    Client --> IM_SEC
+
+    CA_ADV -- "app.gateway.enabled=true (default)" --> GW
+    CA_ADV -- "app.gateway.enabled=false" --> OPENAI
+    CA_ADV -- "embed + search chunks" --> REDIS
+    CA_CTRL -- "chat memory, contacts,\ntext2sql tables, api_keys" --> PG
+
+    AU_SVC -- "whisper-1 / tts-1" --> OPENAI
+    AU_SVC -- "HTTP POST /api/v1/chat\n(AI reply for the transcript)" --> CA_CTRL
+    AU_CTRL -- "api_keys" --> PG
+
+    IM_SVC -- "gateway enabled" --> GW
+    IM_SVC -- "gateway disabled" --> STAB
+    IM_CTRL -- "api_keys" --> PG
+
+    GW --> OPENAI
+
+    CA_ADV -. "traces / logs / metrics" .-> OTEL
+    AU_SVC -. "traces / logs / metrics" .-> OTEL
+    IM_SVC -. "traces / logs / metrics" .-> OTEL
+```
+
+Key things the diagram makes explicit:
+
+- **No shared classpath, shared infrastructure.** All three apps talk to the *same* Postgres
+  instance and the *same* Redis instance, but each owns its own database/table set and, in
+  Redis's case, only `llm-chat-agent` actually uses the vector index.
+- **`llm-audio` is the only module that calls a sibling module in this repo.** `VoiceChatService`
+  calls `ChatAgentClient`, a `WebClient`-backed HTTP client pointed at `llm-chat-agent`'s
+  `/api/v1/chat` endpoint — the voice pipeline transcribes locally, then reuses `llm-chat-agent`
+  for the actual LLM reasoning rather than duplicating chat logic.
+- **The gateway is opt-out, not opt-in.** `app.gateway.enabled` defaults to `true` in
+  `application.yml`, so a fresh checkout of `llm-chat-agent` or `llm-image` routes through
+  `llm-gateway` unless a developer explicitly flips it to `false` per module.
+- **Every module fronts every request with the same two filters** (`ApiKeyAuthFilter`,
+  `RateLimitFilter`) — copy-pasted per module rather than shared as a library, since these are
+  separate deployables that must be independently buildable and versionable.
+
 ## 🛠️ Technology Stack
 
 - **Spring Boot** 4.1.0 · **Spring AI** 2.0.0 · **Java** 25 · **Maven**
@@ -140,7 +226,7 @@ echo "X-API-Key: $raw"
 | GET    | `/api/v1/chat/travel-guide`  | Structured travel-guide response               |
 | POST   | `/api/v1/files/read`          | Read/summarise an uploaded file                |
 | GET    | `/api/v1/recipe`             | Generate a recipe from ingredients             |
-| POST   | `/api/v1/text-to-sql`        | NL → guarded read-only SQL + results           |
+| POST   | `/api/v1/sql`                 | NL → guarded read-only SQL + results           |
 | POST   | `/api/v1/rag/query-transform` | Run a query through a single pre-retrieval transformer (rewrite/translate/compress/multi-query-expand) |
 
 ### `llm-audio` (port 8083, under `/ai`)
@@ -159,6 +245,84 @@ echo "X-API-Key: $raw"
 |--------|-----------------------|------------------------------------------------|
 | POST   | `/api/v1/images/caption`      | Caption an image                               |
 | GET    | `/api/v1/images/generate`     | Generate an image (gateway DALL·E, or Stability if gateway off) |
+
+## 🔄 Request Flow — Streaming Chat, End to End
+
+The richest single request path in this repo is `POST /ai/api/v1/chat/stream` on
+`llm-chat-agent` when running in **direct mode** (`app.gateway.enabled=false`) — it is the one
+flow that exercises the security filters, the guardrail advisor, JDBC-backed memory, the
+compress → expand → retrieve RAG pipeline, tool calling, and Server-Sent Event streaming all in
+one call. (With the gateway enabled — the default — `GatewayChatBackend` replaces the advisor
+chain with a single SSE proxy call to `llm-gateway`'s `/llm/{provider}/stream`; the filter chain,
+controller and streaming contract are otherwise identical.)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant RequestIdFilter
+    participant ApiKeyAuthFilter
+    participant RateLimitFilter
+    participant ChatController
+    participant ChatService
+    participant LocalChatBackend
+    participant Advisors as ChatClient advisors\n(SafeGuardAdvisor → MessageChatMemoryAdvisor\n→ RetrievalAugmentationAdvisor)
+    participant Redis as Redis (vector store)
+    participant Postgres
+    participant OpenAI
+
+    Client->>RequestIdFilter: POST /ai/api/v1/chat/stream\n{conversationId, message, documentSource?}\nheaders: X-API-Key, X-Request-ID?
+    RequestIdFilter->>RequestIdFilter: reuse or generate UUID,\nMDC.put("requestId", id), echo response header
+    RequestIdFilter->>ApiKeyAuthFilter: forward
+    ApiKeyAuthFilter->>Postgres: SHA-256(key) lookup in api_keys
+    Postgres-->>ApiKeyAuthFilter: match → touchLastUsed()
+    ApiKeyAuthFilter->>ApiKeyAuthFilter: set PreAuthenticatedAuthenticationToken
+    ApiKeyAuthFilter->>RateLimitFilter: forward
+    RateLimitFilter->>RateLimitFilter: token-bucket check\n(120 req/min burst, keyed by API key or IP)
+    RateLimitFilter->>ChatController: forward (or 429 ApiError if exhausted)
+    ChatController->>ChatService: streamChat(conversationId, message, documentSource)
+    ChatService->>LocalChatBackend: stream(conversationId, message, documentSource)
+    LocalChatBackend->>LocalChatBackend: ragFilterContext.set(\n  documentSource != null ? eq("fileName", documentSource) : null)
+    LocalChatBackend->>Advisors: chatClient.prompt().stream()\n.tools(WeatherTools, ContactsTool)
+    Advisors->>Advisors: SafeGuardAdvisor (order=MIN_VALUE)\nchecks sensitive-word list, runs first
+    Advisors->>Postgres: MessageChatMemoryAdvisor loads\nlast 50 messages for conversationId
+    Advisors->>Advisors: CompressionQueryTransformer folds\nhistory + message into standalone query
+    Advisors->>Advisors: MultiQueryExpander generates 3\nparaphrased variants + original
+    Advisors->>Redis: VectorStoreDocumentRetriever embeds\n+ searches each variant (filtered if set)
+    Redis-->>Advisors: matched document chunks (per variant)
+    Advisors->>Advisors: ConcatenationDocumentJoiner dedups,\nContextualQueryAugmenter injects SYSTEM context
+    Advisors->>OpenAI: forward augmented prompt + tool defs
+    OpenAI-->>Advisors: Flux<ChatClientResponse> token chunks
+    loop each token chunk
+        Advisors-->>LocalChatBackend: ChatClientResponse (token + DOCUMENT_CONTEXT)
+        LocalChatBackend-->>Client: SSE event "token" {data: chunk}
+    end
+    LocalChatBackend->>LocalChatBackend: read DOCUMENT_CONTEXT from last chunk,\nmap Documents → Citations
+    LocalChatBackend-->>Client: SSE event "citations" {data: JSON array}
+    LocalChatBackend->>Postgres: MessageChatMemoryAdvisor persists\nthe new user/assistant turn
+    LocalChatBackend->>LocalChatBackend: doFinally: ragFilterContext.clear()
+    Note over Client,OpenAI: If the OpenAI call fails after retries, Resilience4j's\nCircuitBreaker("llm-chat") opens and ChatController.streamFallback\nemits a single "temporarily unavailable" token event instead.
+```
+
+Notable details this flow surfaces that aren't visible from the endpoint table alone:
+
+1. **Guardrail runs before anything touches state.** `SafeGuardAdvisor.order(Integer.MIN_VALUE)`
+   guarantees the sensitive-word check fires before `MessageChatMemoryAdvisor` even queries
+   Postgres — a blocked prompt never reaches the database or the model.
+2. **Streaming doesn't sacrifice citations.** `RetrievalAugmentationAdvisor`'s retrieval runs once
+   up front and stashes the retrieved `Document`s in the advisor context under
+   `DOCUMENT_CONTEXT`; `LocalChatBackend` reads that context off the *last* streamed chunk and
+   emits it as one trailing `citations` SSE event after all `token` events, so the token-by-token
+   UX is never blocked waiting on citation formatting.
+3. **The `RagFilterContext` `ThreadLocal` is what makes per-request document scoping possible**
+   on a *singleton* `VectorStoreDocumentRetriever` bean — the filter is set before the call and
+   cleared in `doFinally`, so concurrent requests with different `documentSource` values never
+   see each other's filter.
+4. **Resilience lives one layer above the advisor chain.** `ChatController.streamChat` is wrapped
+   in `@CircuitBreaker(name = "llm-chat")` (10-call sliding window, 50% failure threshold, 10s
+   open-state wait, 3 half-open probes — configured in `application.yml` under
+   `resilience4j.circuitbreaker.instances.llm-chat`) with `streamFallback` returning a single
+   graceful SSE token instead of a broken stream or a 5xx.
 
 ## 📊 Observability
 
@@ -462,6 +626,107 @@ authenticate against another.
 4. **`SecurityConfig`** declares which paths are open (actuator, static HTML, `/error`) and which require authentication; also configures CORS (`CORS_ALLOWED_ORIGINS`) and security headers
 5. **`RestAuthenticationEntryPoint`** returns a structured JSON `{"status":401,...}` error rather than the default HTML challenge page
 - Auth can be fully disabled for local development via `API_AUTH_ENABLED=false`
+
+---
+
+### Request Validation, Correlation & Guardrails
+
+**What this covers.**
+
+Beyond authentication (`ApiKeyAuthFilter`) and rate limiting (`RateLimitFilter`, both described
+above), each module layers on request-correlation, input-validation, and LLM-output-guardrail
+logic that is easy to miss from the endpoint table alone. All of the classes below are plain,
+dependency-light Java — no external validation framework beyond `jakarta.validation` and
+`java.util.regex`.
+
+**`RequestIdFilter` — correlation IDs (`web/RequestIdFilter.java`, identical in all three modules)**
+
+- Registered as a `@Component` with `@Order(Ordered.HIGHEST_PRECEDENCE)`, so it runs before
+  `ApiKeyAuthFilter` and `RateLimitFilter` in the servlet filter chain
+- Reads the incoming `X-Request-ID` header; if the caller didn't supply one, generates a random
+  `UUID`
+- Stores the ID under the SLF4J `MDC` key `requestId` for the lifetime of the request, so every
+  log line emitted while handling it — from the security filters down through the service and
+  advisor layers — carries the same correlation ID (see the `logging.pattern.console` layout,
+  which interleaves `requestId`, `traceId`, and `spanId`)
+- Echoes the ID back to the caller on the `X-Request-ID` response header, and clears the MDC entry
+  in a `finally` block so it never leaks onto the thread for the next pooled request
+- This is what lets an operator grep one `requestId` across `logs/llm-chat.json` (Loki) and land on
+  the exact matching trace in Tempo, even for requests that touch multiple advisors and a
+  downstream HTTP call
+
+**`SqlValidator` — the text-to-SQL guardrail pipeline (`llm-chat-agent`, `validation/SqlValidator.java`)**
+
+`TextToSqlService.process()` asks the model to translate a natural-language question into SQL,
+then never executes what the model returned without running it through `SqlValidator.prepare()`
+first — a three-stage pipeline, each stage independently unit-tested (`SqlValidatorTest`):
+
+1. **`sanitize`** — strips ` ```sql ` / ` ``` ` code-fence markers the model sometimes wraps
+   output in, trims whitespace, and removes a single trailing semicolon; throws
+   `SqlValidationException("model did not return SQL")` on a blank response
+2. **`validateReadOnly`** — enforces the guardrail proper:
+   - The statement must start with `select` or `with` (case-insensitive) — anything else is
+     rejected outright
+   - A regex (`FORBIDDEN_PATTERN`) rejects the statement if it contains `insert`, `update`,
+     `delete`, `drop`, `alter`, `truncate`, `create`, `grant`, `revoke`, `copy`, `call`, `do`,
+     `vacuum`, or `analyze` as a whole word anywhere in the text — this catches mutating
+     statements hidden inside a CTE or subquery, not just at the start of the string
+   - A literal `;` anywhere in the SQL is rejected, blocking stacked/multiple statements
+   - Every table referenced after a `FROM` or `JOIN` keyword is extracted via regex and checked
+     against a **hard-coded allow-list** of four tables
+     (`text2sql_customers`, `text2sql_products`, `text2sql_orders`, `text2sql_order_items`); a
+     query cannot escape the demo schema even if it's syntactically valid read-only SQL
+3. **`enforceLimit`** — appends `LIMIT <maxRows>` to the query unless it already has an explicit
+   `LIMIT` clause or is a `SELECT COUNT(...)` aggregate (which returns exactly one row regardless);
+   `maxRows` itself is clamped server-side to `[1, 200]` by `TextToSqlService.normalizeMaxRows`,
+   so a caller cannot request unbounded result sets even by passing a huge number
+
+If the guarded SQL still fails at execution time with a `BadSqlGrammarException` (e.g. the model
+picked a column that doesn't exist), `TextToSqlService.repairSql()` sends the error message and
+the offending SQL back to the model for one repair attempt, and the repaired SQL is put through
+the **exact same** `SqlValidator.prepare()` guardrail before being executed — there's no bypass
+path for the self-healing retry. Any `SqlValidationException` raised anywhere in the pipeline is
+translated to a `400` JSON `ApiError` by `GlobalExceptionHandler`, never a raw stack trace.
+
+**`AudioValidator` — upload content-type guardrail (`llm-audio`, `validation/AudioValidator.java`)**
+
+- Called at the very start of `VoiceChatService.exchange()` and `AudioService`'s upload path,
+  before the file ever touches disk
+- Rejects a null or empty `MultipartFile` with `AudioValidationException("audio file must not be
+  empty")`
+- Checks the multipart `Content-Type` header against a fixed allow-list — `audio/mpeg`,
+  `audio/mp4`, `audio/wav`, `audio/x-wav`, `audio/ogg`, `audio/webm`, `audio/flac`, `audio/x-m4a`
+  — rejecting anything else (including a missing content type) with a `400` naming the allowed set
+- `AudioService.store()` additionally strips the client-supplied filename down to its last path
+  segment (`Path.of(name).getFileName()`) before writing to disk, closing off path-traversal via a
+  crafted `../../` filename even though that's not `AudioValidator`'s own job
+- Covered by `AudioValidatorTest` with no container or Spring context required — pure unit tests
+  against a mocked `MultipartFile`
+
+**`SafeGuardAdvisor` — LLM-level guardrail (`llm-chat-agent`, configured in `AIConfig`)**
+
+Already introduced under "Spring AI 2.0.0" above; called out again here because it's the guardrail
+that runs *before* validation of any kind touches the request — see the "Advisor chain ordering"
+table and the streaming sequence diagram above for exactly when it fires relative to memory lookup
+and the model call. It matches on a fixed phrase list (`"ignore previous instructions"`,
+`"jailbreak"`, `"prompt injection"`) rather than a regex or model-based classifier — a deliberately
+simple, deterministic first line of defense.
+
+**Resilience4j — circuit breaker & retry (all three modules, `resilience4j.*` in `application.yml`)**
+
+- The `llm-chat` circuit-breaker instance guards `ChatService.chat/streamChat` and
+  `ChatController.streamChat`: a 10-call sliding window, 50% failure-rate threshold, 10-second
+  open-state wait, 3 permitted calls while half-open, and a 5-call minimum before it can trip at
+  all — tuned to avoid flapping on a handful of slow calls
+  - `ChatService`'s fallback methods return a graceful `ChatAnswer`/empty-citations response;
+    `ChatController.streamFallback` emits a single SSE `token` event reading "I'm temporarily
+    unavailable" instead of tearing down the stream with a 5xx
+- The `llm-chat` retry instance retries up to 3 times with a 500ms wait, but **only** for
+  `IOException` and `ResourceAccessException` — retrying blindly on every exception type would
+  re-run non-idempotent-looking failures (e.g. a guardrail rejection) needlessly
+- `llm-audio`'s `VoiceChatService.chat()` wraps its HTTP call to `llm-chat-agent` in its own
+  `llm-chat-agent`-named circuit breaker + retry pair, so a slow or down chat-agent degrades
+  voice-chat gracefully instead of hanging the audio request indefinitely
 
 ---
 
