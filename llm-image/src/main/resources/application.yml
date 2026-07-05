@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8084}   # 8080=llm-gateway, 8081=llm-rag-pipeline, 8082=llm-chat-agent, 8083=llm-audio, 8084=llm-image
+  port: ${SERVER_PORT:8080}   # 8080=llm-gateway, 8081=llm-rag-pipeline, 8082=llm-chat-agent, 8083=llm-audio, 8084=llm-image
   shutdown: graceful   # drain in-flight requests on SIGTERM (rolling deploys)
   servlet:
     context-path: /ai
@@ -21,8 +21,7 @@ spring:
     stabilityai:
       api-key: ${STABILITYAI_API_KEY:sk-placeholder}
       image:
-        options:
-          model: stable-diffusion-xl-1024-v1-0
+        model: stable-diffusion-xl-1024-v1-0
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:spring_ai_image}
     username: ${POSTGRES_USER:postgres}
@@ -38,7 +37,6 @@ spring:
     baseline-version: 0
     baseline-description: existing schema
     table: flyway_schema_history_image
-
 management:
   endpoints:
     web:

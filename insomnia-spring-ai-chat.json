@@ -240,20 +240,16 @@
       "_type": "request",
       "parentId": "fld_image",
       "name": "Generate Image",
-      "method": "GET",
+      "method": "POST",
       "url": "{{ _.base_url }}/ai/image/generate",
-      "parameters": [
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"message\": \"sunset over mountains\",\n  \"style\": \"realistic\",\n  \"count\": 1\n}"
+      },
+      "headers": [
         {
-          "name": "message",
-          "value": "sunset over mountains"
-        },
-        {
-          "name": "style",
-          "value": "realistic"
-        },
-        {
-          "name": "count",
-          "value": "1"
+          "name": "Content-Type",
+          "value": "application/json"
         }
       ]
     },

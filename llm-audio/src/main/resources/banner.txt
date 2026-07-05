@@ -1,0 +1,17 @@
+ _     _     __  __         _             _ _       
+| |   | |   |  \/  |       / \  _   _  __| (_) ___  
+| |   | |   | |\/| |_____ / _ \| | | |/ _` | |/ _ \ 
+| |___| |___| |  | |_____/ ___ \ |_| | (_| | | (_) |
+|_____|_____|_|  |_|    /_/   \_\__,_|\__,_|_|\___/ 
+                                                    
+
+llm-audio
+
+:: Project Metadata ::
+- Project Name      : llm-audio
+- Description       : Production-grade Spring AI audio backend — transcription, text-to-speech and voice chat.
+- Group Id          : com.org.llm
+- Artifact Id       : llm-audio
+- Project Version   : 0.0.1-SNAPSHOT
+- Spring Boot       : ${spring-boot.version}
+- Java Version      : ${java.version}
