@@ -4,18 +4,18 @@
 
 ## Table of contents
 
-1. [Architecture](#%EF%B8%8F-architecture)
-2. [Technology Stack](#%EF%B8%8F-technology-stack)
-3. [Layout](#%EF%B8%8F-layout)
-4. [Getting Started](#-getting-started)
-5. [Authentication](#-authentication)
-6. [Routing through llm-gateway](#-routing-through-llm-gateway)
-7. [Endpoints](#-endpoints)
-8. [Request Flow — Streaming Chat, End to End](#-request-flow--streaming-chat-end-to-end)
-9. [Observability](#-observability)
-10. [Configuration](#-configuration)
-11. [Build & Test](#-build--test)
-12. [Technology Deep Dive](#technology-deep-dive)
+1. 🏗️ [Architecture](#%EF%B8%8F-architecture)
+2. 🧰 [Technology Stack](#%EF%B8%8F-technology-stack)
+3. 🏗️ [Layout](#%EF%B8%8F-layout)
+4. 🚀 [Getting Started](#-getting-started)
+5. 🔐 [Authentication](#-authentication)
+6. 🚪 [Routing through llm-gateway](#-routing-through-llm-gateway)
+7. 🌐 [Endpoints](#-endpoints)
+8. 📨 [Request Flow — Streaming Chat, End to End](#-request-flow--streaming-chat-end-to-end)
+9. 📈 [Observability](#-observability)
+10. ⚙️ [Configuration](#-configuration)
+11. 🧪 [Build & Test](#-build--test)
+12. 🧰 [Technology Deep Dive](#technology-deep-dive)
 
 A Maven **multi-module** reactor demonstrating production Spring AI patterns, split into three
 independently runnable modules:
