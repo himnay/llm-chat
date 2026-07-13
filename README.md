@@ -534,6 +534,7 @@ Because `RetrievalAugmentationAdvisor` is added per-call *after* the chat client
 5. `ContextualQueryAugmenter` injects the joined chunks as a `SYSTEM` context block before the first token is streamed
 
 Two things worth calling out:
+
 <ul>
 
 - Compression and expansion only change what's sent to the retriever — the user's original message text is still what gets stored in `ChatMemory`, so conversation history isn't silently rewritten.
@@ -747,6 +748,7 @@ authenticate against another.
 3. **`RateLimitFilter`** applies a token-bucket rate limiter (120 requests/minute burst) per API key (or client IP when no key is present); the bucket is an in-memory `ConcurrentHashMap` of hand-rolled `Bucket` objects — no Resilience4j or Bucket4j dependency; returns `429` with a JSON `ApiError` on exhaustion
 4. **`SecurityConfig`** declares which paths are open (actuator, static HTML, `/error`) and which require authentication; also configures CORS (`CORS_ALLOWED_ORIGINS`) and security headers
 5. **`RestAuthenticationEntryPoint`** returns a structured JSON `{"status":401,...}` error rather than the default HTML challenge page
+
 <ul>
 
 - Auth can be fully disabled for local development via `API_AUTH_ENABLED=false`
