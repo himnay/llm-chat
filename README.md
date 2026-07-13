@@ -376,7 +376,8 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 - Flyway migrations, the JDBC chat-memory schema, and all JDBC queries in tests run against the real Postgres 18 container
 - Validator logic (`SqlValidator`, `AudioValidator`) is covered by plain unit tests with no container dependency
 
-## Technology Deep Dive
+<a id="technology-deep-dive"></a>
+## 12. 🧰 Technology Deep Dive
 
 This section explains every significant library, framework, database, and infrastructure component used in this project — what it is and exactly how it is wired up here.
 
