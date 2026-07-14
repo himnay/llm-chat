@@ -1,0 +1,335 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-14T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v12.0.0",
+  "resources": [
+    {
+      "_id": "wrk_llmchat_0000000000000000000000000001",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "llm-chat :: REST",
+      "scope": "collection",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "env_llmchat_0000000000000000000000000002",
+      "_type": "environment",
+      "parentId": "wrk_llmchat_0000000000000000000000000001",
+      "name": "Base Environment",
+      "data": {
+        "host": "localhost"
+      },
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "fld_llmchat_0000000000000000000000000003",
+      "_type": "request_group",
+      "parentId": "wrk_llmchat_0000000000000000000000000001",
+      "name": "llm-audio (:8083)",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000004",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000003",
+      "name": "POST /api/v1/audio/to-speech",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8083/api/v1/audio/to-speech",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 0,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000005",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000003",
+      "name": "POST /api/v1/audio/to-text",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8083/api/v1/audio/to-text",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 100,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000006",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000003",
+      "name": "POST /api/v1/audio/upload",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8083/api/v1/audio/upload",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 200,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000007",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000003",
+      "name": "POST /api/v1/chat/audio",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8083/api/v1/chat/audio",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 300,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000008",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000003",
+      "name": "POST /api/v1/chat/audio/voice",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8083/api/v1/chat/audio/voice",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 400,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "fld_llmchat_0000000000000000000000000009",
+      "_type": "request_group",
+      "parentId": "wrk_llmchat_0000000000000000000000000001",
+      "name": "llm-chat-agent (:8082)",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000010",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "GET /api/v1/chat/memory",
+      "method": "GET",
+      "url": "http://{{ _.host }}:8082/api/v1/chat/memory",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 0,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000011",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "GET /api/v1/chat/travel-guide",
+      "method": "GET",
+      "url": "http://{{ _.host }}:8082/api/v1/chat/travel-guide",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 100,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000012",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "GET /api/v1/recipe",
+      "method": "GET",
+      "url": "http://{{ _.host }}:8082/api/v1/recipe",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 200,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000013",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "POST /api/v1/chat",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8082/api/v1/chat",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 300,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000014",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "POST /api/v1/chat/stream",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8082/api/v1/chat/stream",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 400,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000015",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "POST /api/v1/files/read",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8082/api/v1/files/read",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 500,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000016",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "POST /api/v1/rag/query-transform",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8082/api/v1/rag/query-transform",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 600,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000017",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000009",
+      "name": "POST /api/v1/sql",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8082/api/v1/sql",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 700,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "fld_llmchat_0000000000000000000000000018",
+      "_type": "request_group",
+      "parentId": "wrk_llmchat_0000000000000000000000000001",
+      "name": "llm-image (:8080)",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000019",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000018",
+      "name": "POST /api/v1/images/caption",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8080/api/v1/images/caption",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 0,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_llmchat_0000000000000000000000000020",
+      "_type": "request",
+      "parentId": "fld_llmchat_0000000000000000000000000018",
+      "name": "POST /api/v1/images/generate",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8080/api/v1/images/generate",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 100,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    }
+  ]
+}
