@@ -4,18 +4,18 @@
 
 ## Table of contents
 
-1. 🏗️ [Architecture](#%EF%B8%8F-architecture)
-2. 🧰 [Technology Stack](#%EF%B8%8F-technology-stack)
-3. 🏗️ [Layout](#%EF%B8%8F-layout)
-4. 🚀 [Getting Started](#-getting-started)
-5. 🔐 [Authentication](#-authentication)
-6. 🚪 [Routing through llm-gateway](#-routing-through-llm-gateway)
-7. 🌐 [Endpoints](#-endpoints)
-8. 📨 [Request Flow — Streaming Chat, End to End](#-request-flow--streaming-chat-end-to-end)
-9. 📈 [Observability](#-observability)
-10. ⚙️ [Configuration](#-configuration)
-11. 🧪 [Build & Test](#-build--test)
-12. 🧰 [Technology Deep Dive](#technology-deep-dive)
+1. 🏗️ [Architecture](#1-architecture)
+2. 🧰 [Technology Stack](#2-technology-stack)
+3. 🏗️ [Layout](#3-layout)
+4. 🚀 [Getting Started](#4-getting-started)
+5. 🔐 [Authentication](#5-authentication)
+6. 🚪 [Routing through llm-gateway](#6-routing-through-llm-gateway)
+7. 🌐 [Endpoints](#7-endpoints)
+8. 📨 [Request Flow — Streaming Chat, End to End](#8-request-flow-streaming-chat-end-to-end)
+9. 📈 [Observability](#9-observability)
+10. ⚙️ [Configuration](#10-configuration)
+11. 🧪 [Build & Test](#11-build-test)
+12. 🧰 [Technology Deep Dive](#12-technology-deep-dive)
 
 A Maven **multi-module** reactor demonstrating production Spring AI patterns, split into three
 independently runnable modules:
@@ -35,7 +35,8 @@ Spring Boot app with its own `application.yml`, API-key auth, and database (`spr
 > [`llm-rag-pipeline`](../llm-rag-pipeline) (ingestion + retrieval). This repo follows the same
 > security, observability and project conventions as those two.
 
-## 🗺️ Architecture
+<a id="1-architecture"></a>
+## 1. 🗺️ Architecture
 
 The reactor is three independently deployable Spring Boot applications that share no runtime
 classpath, each fronted by its own security filter chain (`ApiKeyAuthFilter` → `RateLimitFilter`)
@@ -125,7 +126,8 @@ Key things the diagram makes explicit:
 
 </ul>
 
-## 🛠️ Technology Stack
+<a id="2-technology-stack"></a>
+## 2. 🛠️ Technology Stack
 
 <ul>
 
@@ -138,7 +140,8 @@ Key things the diagram makes explicit:
 
 </ul>
 
-## 🏗️ Layout
+<a id="3-layout"></a>
+## 3. 🏗️ Layout
 
 Each module is a self-contained Spring Boot app under `com.org.llm.*`; the package name repeats
 across modules but they never share a classpath at runtime.
@@ -164,7 +167,8 @@ across modules but they never share a classpath at runtime.
 
 </ul>
 
-## 🚀 Getting Started
+<a id="4-getting-started"></a>
+## 4. 🚀 Getting Started
 
 ### 1. Start infrastructure
 
@@ -191,7 +195,8 @@ export WEATHER_API_KEY=...            # only for llm-chat-agent's weather tool
 Or build/test the whole reactor from the root: `./mvnw verify`. Each module serves under context
 path **`/ai`** on its own port (e.g. http://localhost:8082/ai).
 
-## 🔑 Authentication
+<a id="5-authentication"></a>
+## 5. 🔑 Authentication
 
 <ul>
 
@@ -232,7 +237,8 @@ echo "X-API-Key: $raw"
 
 </ul>
 
-## 🔀 Routing through llm-gateway
+<a id="6-routing-through-llm-gateway"></a>
+## 6. 🔀 Routing through llm-gateway
 
 <ul>
 
@@ -259,7 +265,8 @@ echo "X-API-Key: $raw"
 
 </ul>
 
-## 📡 Endpoints
+<a id="7-endpoints"></a>
+## 7. 📡 Endpoints
 
 ### `llm-chat-agent` (port 8082, under `/ai`)
 
@@ -291,7 +298,8 @@ echo "X-API-Key: $raw"
 | POST   | `/api/v1/images/caption`      | Caption an image                               |
 | GET    | `/api/v1/images/generate`     | Generate an image (gateway DALL·E, or Stability if gateway off) |
 
-## 🔄 Request Flow — Streaming Chat, End to End
+<a id="8-request-flow-streaming-chat-end-to-end"></a>
+## 8. 🔄 Request Flow — Streaming Chat, End to End
 
 The richest single request path in this repo is `POST /ai/api/v1/chat/stream` on
 `llm-chat-agent` when running in **direct mode** (`app.gateway.enabled=false`) — it is the one
@@ -369,7 +377,8 @@ Notable details this flow surfaces that aren't visible from the endpoint table a
    `resilience4j.circuitbreaker.instances.llm-chat`) with `streamFallback` returning a single
    graceful SSE token instead of a broken stream or a 5xx.
 
-## 📊 Observability
+<a id="9-observability"></a>
+## 9. 📊 Observability
 
 See [`PROMETHEUS_GRAFANA_SETUP.md`](./PROMETHEUS_GRAFANA_SETUP.md). Health at
 `/ai/actuator/health`, Prometheus scrape at `/ai/actuator/prometheus`, Grafana at
@@ -391,7 +400,8 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 
 </ul>
 
-## 🧱 Configuration
+<a id="10-configuration"></a>
+## 10. 🧱 Configuration
 
 <ul>
 
@@ -401,7 +411,8 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 
 </ul>
 
-## ✅ Build & Test
+<a id="11-build-test"></a>
+## 11. ✅ Build & Test
 
 ```bash
 ./mvnw verify        # compile, test, JaCoCo coverage report (target/site/jacoco)
@@ -417,6 +428,7 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 </ul>
 
 <a id="technology-deep-dive"></a>
+<a id="12-technology-deep-dive"></a>
 ## 12. 🧰 Technology Deep Dive
 
 This section explains every significant library, framework, database, and infrastructure component used in this project — what it is and exactly how it is wired up here.
