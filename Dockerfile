@@ -23,17 +23,18 @@ FROM eclipse-temurin:25-jre AS extract
 ARG MODULE=llm-chat-agent
 WORKDIR /app
 COPY --from=build /app/${MODULE}/target/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
+# Boot 3.3+/4 replaced -Djarmode=layertools with the 'tools' jarmode
+RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
 # ---- runtime stage ----
 FROM eclipse-temurin:25-jre
 ARG PORT=8082
 WORKDIR /app
 RUN useradd --system --uid 10001 appuser
-COPY --from=extract /app/dependencies/ ./
-COPY --from=extract /app/spring-boot-loader/ ./
-COPY --from=extract /app/snapshot-dependencies/ ./
-COPY --from=extract /app/application/ ./
+COPY --from=extract /app/extracted/dependencies/ ./
+COPY --from=extract /app/extracted/spring-boot-loader/ ./
+COPY --from=extract /app/extracted/snapshot-dependencies/ ./
+COPY --from=extract /app/extracted/application/ ./
 USER appuser
 EXPOSE ${PORT}
 ENV SERVER_PORT=${PORT}
