@@ -20,11 +20,11 @@
 A Maven **multi-module** reactor demonstrating production Spring AI patterns, split into three
 independently runnable modules:
 
-| Module | Port | Responsibility |
-|---|---|---|
+| Module                               | Port | Responsibility                                                                                                                                               |
+|--------------------------------------|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`llm-chat-agent`](./llm-chat-agent) | 8082 | Multi-turn chat with persistent memory, streaming, RAG, PDF/file reading, a guarded natural-language **text-to-SQL** endpoint, travel-guide and recipe demos |
-| [`llm-audio`](./llm-audio) | 8083 | Audio transcription (Whisper), text-to-speech, and voice chat (calls `llm-chat-agent` over HTTP for the AI reply) |
-| [`llm-image`](./llm-image) | 8084 | Image captioning (multimodal chat) and AI image generation (Stability AI / gateway DALL·E) |
+| [`llm-audio`](./llm-audio)           | 8083 | Audio transcription (Whisper), text-to-speech, and voice chat (calls `llm-chat-agent` over HTTP for the AI reply)                                            |
+| [`llm-image`](./llm-image)           | 8084 | Image captioning (multimodal chat) and AI image generation (Stability AI / gateway DALL·E)                                                                   |
 
 All three share this repo's root `pom.xml` (a reactor parent extending `super-pom`), Maven
 wrapper, and `docker-compose.yml` (Postgres, Redis, observability stack). Each module is its own
@@ -251,12 +251,12 @@ echo "X-API-Key: $raw"
 
 </ul>
 
-| Flow                                  | Gateway call                          |
-|----------------------------------------|---------------------------------------|
-| `llm-chat-agent` `/chat`               | `POST /llm/chat` (session = `conversationId`) |
-| `llm-chat-agent` `/chat/stream`        | `POST /llm/{provider}/stream` (SSE)   |
-| `llm-chat-agent` `/chat/travel-guide`  | `POST /llm/query` (strict-JSON → `TravelPlan`) |
-| `llm-image` `/images/generate`         | `POST /llm/image` (OpenAI DALL·E)     |
+| Flow                                  | Gateway call                                   |
+|---------------------------------------|------------------------------------------------|
+| `llm-chat-agent` `/chat`              | `POST /llm/chat` (session = `conversationId`)  |
+| `llm-chat-agent` `/chat/stream`       | `POST /llm/{provider}/stream` (SSE)            |
+| `llm-chat-agent` `/chat/travel-guide` | `POST /llm/query` (strict-JSON → `TravelPlan`) |
+| `llm-image` `/images/generate`        | `POST /llm/image` (OpenAI DALL·E)              |
 
 <ul>
 
@@ -270,33 +270,33 @@ echo "X-API-Key: $raw"
 
 ### `llm-chat-agent` (port 8082, under `/ai`)
 
-| Method | Path                  | Description                                    |
-|--------|-----------------------|------------------------------------------------|
-| POST   | `/api/v1/chat`               | Multi-turn chat (memory via `conversationId`)  |
-| POST   | `/api/v1/chat/stream`        | Server-sent streaming chat                     |
-| GET    | `/api/v1/chat/memory`        | Inspect conversation memory                    |
-| GET    | `/api/v1/chat/travel-guide`  | Structured travel-guide response               |
-| POST   | `/api/v1/files/read`          | Read/summarise an uploaded file                |
-| GET    | `/api/v1/recipe`             | Generate a recipe from ingredients             |
-| POST   | `/api/v1/sql`                 | NL → guarded read-only SQL + results           |
+| Method | Path                          | Description                                                                                            |
+|--------|-------------------------------|--------------------------------------------------------------------------------------------------------|
+| POST   | `/api/v1/chat`                | Multi-turn chat (memory via `conversationId`)                                                          |
+| POST   | `/api/v1/chat/stream`         | Server-sent streaming chat                                                                             |
+| GET    | `/api/v1/chat/memory`         | Inspect conversation memory                                                                            |
+| GET    | `/api/v1/chat/travel-guide`   | Structured travel-guide response                                                                       |
+| POST   | `/api/v1/files/read`          | Read/summarise an uploaded file                                                                        |
+| GET    | `/api/v1/recipe`              | Generate a recipe from ingredients                                                                     |
+| POST   | `/api/v1/sql`                 | NL → guarded read-only SQL + results                                                                   |
 | POST   | `/api/v1/rag/query-transform` | Run a query through a single pre-retrieval transformer (rewrite/translate/compress/multi-query-expand) |
 
 ### `llm-audio` (port 8083, under `/ai`)
 
-| Method | Path                  | Description                                    |
-|--------|-----------------------|------------------------------------------------|
-| POST   | `/api/v1/chat/audio`         | Chat with audio input (calls `llm-chat-agent` for the reply) |
-| POST   | `/api/v1/chat/audio/voice`   | Voice-to-voice chat                            |
-| POST   | `/api/v1/audio/to-text`      | Transcribe audio                               |
-| POST   | `/api/v1/audio/to-speech`    | Text-to-speech                                 |
-| POST   | `/api/v1/audio/upload`       | Upload + process an audio file                 |
+| Method | Path                       | Description                                                  |
+|--------|----------------------------|--------------------------------------------------------------|
+| POST   | `/api/v1/chat/audio`       | Chat with audio input (calls `llm-chat-agent` for the reply) |
+| POST   | `/api/v1/chat/audio/voice` | Voice-to-voice chat                                          |
+| POST   | `/api/v1/audio/to-text`    | Transcribe audio                                             |
+| POST   | `/api/v1/audio/to-speech`  | Text-to-speech                                               |
+| POST   | `/api/v1/audio/upload`     | Upload + process an audio file                               |
 
 ### `llm-image` (port 8084, under `/ai`)
 
-| Method | Path                  | Description                                    |
-|--------|-----------------------|------------------------------------------------|
-| POST   | `/api/v1/images/caption`      | Caption an image                               |
-| GET    | `/api/v1/images/generate`     | Generate an image (gateway DALL·E, or Stability if gateway off) |
+| Method | Path                      | Description                                                     |
+|--------|---------------------------|-----------------------------------------------------------------|
+| POST   | `/api/v1/images/caption`  | Caption an image                                                |
+| GET    | `/api/v1/images/generate` | Generate an image (gateway DALL·E, or Stability if gateway off) |
 
 <a id="8-request-flow-streaming-chat-end-to-end"></a>
 ## 8. 🔄 Request Flow — Streaming Chat, End to End
@@ -386,12 +386,12 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 
 ### Actuator endpoints
 
-| Endpoint | Description |
-|---|---|
-| `/ai/actuator/health` | Full component health (DB, Redis, liveness/readiness probes) |
-| `/ai/actuator/info` | Build info (version, time), git info (branch, commit, dirty flag), Java/OS details |
-| `/ai/actuator/metrics` | Micrometer metrics |
-| `/ai/actuator/prometheus` | Prometheus scrape target |
+| Endpoint                  | Description                                                                        |
+|---------------------------|------------------------------------------------------------------------------------|
+| `/ai/actuator/health`     | Full component health (DB, Redis, liveness/readiness probes)                       |
+| `/ai/actuator/info`       | Build info (version, time), git info (branch, commit, dirty flag), Java/OS details |
+| `/ai/actuator/metrics`    | Micrometer metrics                                                                 |
+| `/ai/actuator/prometheus` | Prometheus scrape target                                                           |
 
 <ul>
 
@@ -495,11 +495,11 @@ This section explains every significant library, framework, database, and infras
 
 The three default advisors fire in a fixed order on every `ChatClient` call:
 
-| Order | Advisor | Role |
-|---|---|---|
-| `Integer.MIN_VALUE` | `SafeGuardAdvisor` | Runs first — blocks jailbreak / prompt-injection phrases before any memory lookup or model call is made |
-| default | `MessageChatMemoryAdvisor` | Fetches the last 50 messages for the `conversationId` from PostgreSQL and prepends them to the prompt as `USER`/`ASSISTANT` turns |
-| default | `SimpleLoggerAdvisor` | Logs full request and response pairs at `DEBUG` level for observability; runs last so it captures the fully assembled prompt |
+| Order               | Advisor                    | Role                                                                                                                              |
+|---------------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `Integer.MIN_VALUE` | `SafeGuardAdvisor`         | Runs first — blocks jailbreak / prompt-injection phrases before any memory lookup or model call is made                           |
+| default             | `MessageChatMemoryAdvisor` | Fetches the last 50 messages for the `conversationId` from PostgreSQL and prepends them to the prompt as `USER`/`ASSISTANT` turns |
+| default             | `SimpleLoggerAdvisor`      | Logs full request and response pairs at `DEBUG` level for observability; runs last so it captures the fully assembled prompt      |
 
 `SafeGuardAdvisor.order(Integer.MIN_VALUE)` guarantees the guard fires before memory is even consulted — a blocked request never touches the database.
 
@@ -583,12 +583,12 @@ No per-request state lives in any Spring bean — the ID travels through `Advise
 
 `CompressionQueryTransformer` is only one of several pre-retrieval query transformers Spring AI ships under `spring-ai-rag`. `POST /api/v1/rag/query-transform` exposes all four so each can be exercised independently of the main chat flow:
 
-| Technique | Spring AI class | What it does |
-|---|---|---|
-| `REWRITE` | `RewriteQueryTransformer` | Rewrites a messy/conversational query into a clean, standalone search query |
-| `TRANSLATE` | `TranslationQueryTransformer` | Translates the query into the language of the indexed documents (defaults to English) |
-| `COMPRESS` | `CompressionQueryTransformer` | Folds conversation history + the current query into one standalone query |
-| `MULTI_QUERY_EXPAND` | `MultiQueryExpander` | Generates several paraphrased variants of the query to improve recall |
+| Technique            | Spring AI class               | What it does                                                                          |
+|----------------------|-------------------------------|---------------------------------------------------------------------------------------|
+| `REWRITE`            | `RewriteQueryTransformer`     | Rewrites a messy/conversational query into a clean, standalone search query           |
+| `TRANSLATE`          | `TranslationQueryTransformer` | Translates the query into the language of the indexed documents (defaults to English) |
+| `COMPRESS`           | `CompressionQueryTransformer` | Folds conversation history + the current query into one standalone query              |
+| `MULTI_QUERY_EXPAND` | `MultiQueryExpander`          | Generates several paraphrased variants of the query to improve recall                 |
 
 ```json
 POST /api/v1/rag/query-transform
@@ -674,11 +674,11 @@ This endpoint is a playground for inspecting each technique's raw output — it 
 **How it's used here.** A single Postgres instance (from the root `docker-compose.yml`) hosts one
 database per module, each with its own Flyway history table so migrations never collide:
 
-| Database | Module | Tables |
-|---|---|---|
-| `spring_ai` | `llm-chat-agent` | `spring_ai_chat_memory` (chat history, auto-created by Spring AI), `contacts` (weather/contacts tool seed data), `text2sql_customers / products / orders / order_items` (demo e-commerce schema), `api_keys` |
-| `spring_ai_audio` | `llm-audio` | `api_keys` |
-| `spring_ai_image` | `llm-image` | `api_keys` |
+| Database          | Module           | Tables                                                                                                                                                                                                       |
+|-------------------|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `spring_ai`       | `llm-chat-agent` | `spring_ai_chat_memory` (chat history, auto-created by Spring AI), `contacts` (weather/contacts tool seed data), `text2sql_customers / products / orders / order_items` (demo e-commerce schema), `api_keys` |
+| `spring_ai_audio` | `llm-audio`      | `api_keys`                                                                                                                                                                                                   |
+| `spring_ai_image` | `llm-image`      | `api_keys`                                                                                                                                                                                                   |
 
 The `spring_ai_audio` and `spring_ai_image` databases are created on first container start by
 `observability/init-db/01-create-module-databases.sql` (mounted into

@@ -23,14 +23,14 @@ export STABILITYAI_API_KEY=sk-...     # only needed for image generation
 
 ## 3. Endpoints
 
-| What              | URL                                                  |
-|-------------------|------------------------------------------------------|
-| App health        | http://localhost:8082/ai/actuator/health             |
-| Prometheus scrape | http://localhost:8082/ai/actuator/prometheus         |
-| Prometheus UI     | http://localhost:9090                                |
-| Grafana           | http://localhost:3000  (admin / admin)               |
-| Tempo (traces)    | queried via Grafana                                  |
-| Loki (logs)       | queried via Grafana                                  |
+| What              | URL                                          |
+|-------------------|----------------------------------------------|
+| App health        | http://localhost:8082/ai/actuator/health     |
+| Prometheus scrape | http://localhost:8082/ai/actuator/prometheus |
+| Prometheus UI     | http://localhost:9090                        |
+| Grafana           | http://localhost:3000  (admin / admin)       |
+| Tempo (traces)    | queried via Grafana                          |
+| Loki (logs)       | queried via Grafana                          |
 
 ## 4. Grafana
 
