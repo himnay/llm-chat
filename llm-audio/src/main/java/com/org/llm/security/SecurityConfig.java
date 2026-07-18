@@ -33,8 +33,8 @@ import java.util.List;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(SecurityProperties.class)
 @RequiredArgsConstructor
+@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityConfig {
 
     /** Open routes: actuator, the demo static UIs, Swagger/OpenAPI docs and infrastructure endpoints. */

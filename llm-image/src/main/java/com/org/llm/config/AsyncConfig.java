@@ -12,8 +12,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * <p>Provides a {@code taskExecutor} bean used by service methods annotated with
  * {@code @Async("taskExecutor")}.</p>
  */
-@Configuration
 @EnableAsync
+@Configuration
 public class AsyncConfig {
 
     @Bean("taskExecutor")

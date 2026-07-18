@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
-@RequestMapping("/api/v1/rag")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/rag")
 @Tag(name = "RAG", description = "Pre-retrieval query transformation playground (Spring AI modular RAG)")
 class QueryTransformController {
 

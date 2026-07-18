@@ -22,14 +22,14 @@ public class ChatService {
 
     private final ChatBackend chatBackend;
 
-    @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallback")
     @Retry(name = "llm-chat")
+    @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallback")
     public ChatAnswer chat(String conversationId, String message) {
         return chatBackend.chat(systemPrompt(), normalizeConversationId(conversationId), message, null);
     }
 
-    @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallbackWithSource")
     @Retry(name = "llm-chat")
+    @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallbackWithSource")
     public ChatAnswer chat(String conversationId, String message, String documentSource) {
         return chatBackend.chat(systemPrompt(), normalizeConversationId(conversationId), message, documentSource);
     }

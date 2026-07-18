@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class AdvisorOrderTest {
 
-    @DisplayName("SafeGuardAdvisor has the highest priority (Integer.MIN_VALUE order)")
     @Test
+    @DisplayName("SafeGuardAdvisor has the highest priority (Integer.MIN_VALUE order)")
     void safeGuardAdvisorHasHighestPriority() {
         SafeGuardAdvisor safeGuard = SafeGuardAdvisor.builder()
                 .sensitiveWords(List.of("jailbreak"))
@@ -33,8 +33,8 @@ class AdvisorOrderTest {
         assertThat(safeGuard.getOrder()).isEqualTo(Integer.MIN_VALUE);
     }
 
-    @DisplayName("SimpleLoggerAdvisor order is higher than SafeGuardAdvisor's, so it runs later")
     @Test
+    @DisplayName("SimpleLoggerAdvisor order is higher than SafeGuardAdvisor's, so it runs later")
     void simpleLoggerAdvisorOrderIsHigherThanSafeGuard() {
         SimpleLoggerAdvisor logger = new SimpleLoggerAdvisor();
 
@@ -47,8 +47,8 @@ class AdvisorOrderTest {
         assertThat(logger.getOrder()).isGreaterThan(safeGuard.getOrder());
     }
 
-    @DisplayName("TokenCountingAdvisor order falls between SafeGuardAdvisor and SimpleLoggerAdvisor")
     @Test
+    @DisplayName("TokenCountingAdvisor order falls between SafeGuardAdvisor and SimpleLoggerAdvisor")
     void tokenCountingAdvisorOrderIsBetweenSafeGuardAndLogger() {
         // Inline implementation matching what AIConfig creates
         CallAdvisor tokenAdvisor = new CallAdvisor() {
@@ -56,8 +56,8 @@ class AdvisorOrderTest {
             public ChatClientResponse adviseCall(ChatClientRequest req, CallAdvisorChain chain) {
                 return chain.nextCall(req);
             }
-            @Override public String getName() { return "TokenCountingAdvisor"; }
             @Override public int getOrder() { return 0; }
+            @Override public String getName() { return "TokenCountingAdvisor"; }
         };
 
         SafeGuardAdvisor safeGuard = SafeGuardAdvisor.builder()
@@ -71,8 +71,8 @@ class AdvisorOrderTest {
                 .isLessThanOrEqualTo(logger.getOrder());
     }
 
-    @DisplayName("Default SafeGuardAdvisor sensitive word list is non-empty")
     @Test
+    @DisplayName("Default SafeGuardAdvisor sensitive word list is non-empty")
     void safeGuardBlockedWordsDefaultsAreNonEmpty() {
         List<String> defaults = List.of(
                 "ignore previous instructions", "jailbreak", "prompt injection",

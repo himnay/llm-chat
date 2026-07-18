@@ -18,8 +18,8 @@ class LLMApplicationTests {
     @MockitoBean
     private VectorStore vectorStore;
 
-    @DisplayName("Spring application context loads successfully")
     @Test
+    @DisplayName("Spring application context loads successfully")
     void contextLoads() {
     }
 }

@@ -27,8 +27,8 @@ class ChatControllerStreamingTest {
     private final ChatController controller =
             new ChatController(chatService, travelGuideService, chatMemory);
 
-    @DisplayName("Streaming fallback emits an SSE event with a temporarily-unavailable message")
     @Test
+    @DisplayName("Streaming fallback emits an SSE event with a temporarily-unavailable message")
     void streamFallback_returnsErrorSseEvent() {
         ChatRequest request = new ChatRequest("conv-1", "hello", null);
         RuntimeException cause = new RuntimeException("LLM unavailable");
@@ -40,8 +40,8 @@ class ChatControllerStreamingTest {
                 .verifyComplete();
     }
 
-    @DisplayName("Streaming chat delegates to ChatService and forwards its token and citation events")
     @Test
+    @DisplayName("Streaming chat delegates to ChatService and forwards its token and citation events")
     void streamChat_delegatesToService() {
         ChatRequest request = new ChatRequest("conv-1", "hello", null);
         Flux<ServerSentEvent<String>> tokens = Flux.just(
@@ -59,8 +59,8 @@ class ChatControllerStreamingTest {
                 .verifyComplete();
     }
 
-    @DisplayName("Fallback activates and returns the unavailable SSE event when the service throws")
     @Test
+    @DisplayName("Fallback activates and returns the unavailable SSE event when the service throws")
     void streamChat_whenServiceThrows_fallbackActivates() {
         ChatRequest request = new ChatRequest("conv-1", "hello", null);
         RuntimeException ex = new RuntimeException("service down");

@@ -29,8 +29,8 @@ import java.util.Map;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/v1/chat")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/chat")
 @Tag(name = "Chat", description = "Conversational AI chat endpoints")
 class ChatController {
 
@@ -38,22 +38,22 @@ class ChatController {
     private final TravelGuideService travelGuideService;
     private final ChatMemory chatMemory;
 
-    @Operation(summary = "Send a chat message and receive a blocking response with RAG citations")
     @PostMapping
+    @Operation(summary = "Send a chat message and receive a blocking response with RAG citations")
     public ChatAnswer chat(@Validated @RequestBody ChatRequest chatRequest) {
         return chatService.chat(chatRequest.conversationId(), chatRequest.message(), chatRequest.documentSource());
     }
 
-    @Operation(summary = "Generate a multi-day travel guide for a given city")
     @GetMapping("/travel-guide")
+    @Operation(summary = "Generate a multi-day travel guide for a given city")
     public TravelPlan prepareTravelPlan(
             @NotBlank(message = "city is required") @RequestParam String city,
             @Positive(message = "days must be a positive number") @RequestParam Integer days) {
         return travelGuideService.prepareTravelPlan(city, days);
     }
 
-    @Operation(summary = "Retrieve paginated chat memory for a conversation")
     @GetMapping("/memory")
+    @Operation(summary = "Retrieve paginated chat memory for a conversation")
     public Map<String, Object> fetchMemory(
             @NotBlank(message = "conversationId is required") @RequestParam String conversationId,
             @RequestParam(defaultValue = "0") int page,

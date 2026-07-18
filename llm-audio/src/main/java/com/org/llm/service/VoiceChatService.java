@@ -37,8 +37,8 @@ public class VoiceChatService {
         return audioService.textToSpeech(text);
     }
 
-    @CircuitBreaker(name = "llm-chat-agent", fallbackMethod = "chatFallback")
     @Retry(name = "llm-chat-agent")
+    @CircuitBreaker(name = "llm-chat-agent", fallbackMethod = "chatFallback")
     String chat(String transcript) {
         return chatAgentClient.chat(null, transcript, null);
     }

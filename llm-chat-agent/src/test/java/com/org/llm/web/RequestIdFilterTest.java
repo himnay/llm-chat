@@ -26,8 +26,8 @@ class RequestIdFilterTest {
         MDC.clear();
     }
 
-    @DisplayName("Generates a valid UUID request ID when no header is present")
     @Test
+    @DisplayName("Generates a valid UUID request ID when no header is present")
     void generatesRequestIdWhenHeaderAbsent() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -41,8 +41,8 @@ class RequestIdFilterTest {
         assertThat(responseId).matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
     }
 
-    @DisplayName("Propagates the existing X-Request-ID header value to the response")
     @Test
+    @DisplayName("Propagates the existing X-Request-ID header value to the response")
     void propagatesRequestIdWhenHeaderPresent() throws ServletException, IOException {
         String existingId = "my-custom-request-id-123";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -55,8 +55,8 @@ class RequestIdFilterTest {
         assertThat(response.getHeader("X-Request-ID")).isEqualTo(existingId);
     }
 
-    @DisplayName("Clears the requestId from MDC after the filter chain completes")
     @Test
+    @DisplayName("Clears the requestId from MDC after the filter chain completes")
     void clearsMdcAfterRequest() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -71,8 +71,8 @@ class RequestIdFilterTest {
         assertThat(MDC.get("requestId")).isNull();
     }
 
-    @DisplayName("Sets the request ID into MDC while the filter chain is executing")
     @Test
+    @DisplayName("Sets the request ID into MDC while the filter chain is executing")
     void setsRequestIdInMdcDuringChain() throws ServletException, IOException {
         String requestId = "trace-abc-123";
         MockHttpServletRequest request = new MockHttpServletRequest();

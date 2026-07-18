@@ -27,15 +27,15 @@ class AudioController {
     private final AudioService audioService;
     private final AudioValidator audioValidator;
 
-    @Operation(summary = "Upload an audio file for storage")
     @PostMapping("/upload")
+    @Operation(summary = "Upload an audio file for storage")
     public ResponseEntity<StoredAudio> uploadAudio(@RequestParam("file") MultipartFile file) {
         audioValidator.validate(file);
         return ResponseEntity.ok(audioService.store(file));
     }
 
-    @Operation(summary = "Convert text to speech and return MP3 audio bytes")
     @PostMapping("/to-speech")
+    @Operation(summary = "Convert text to speech and return MP3 audio bytes")
     public ResponseEntity<byte[]> textToSpeech(
             @NotBlank(message = "text is required") @RequestParam("text") String text) {
         byte[] audio = audioService.textToSpeech(text);
@@ -44,8 +44,8 @@ class AudioController {
                 .body(audio);
     }
 
-    @Operation(summary = "Transcribe an audio file to text using Whisper")
     @PostMapping("/to-text")
+    @Operation(summary = "Transcribe an audio file to text using Whisper")
     public ResponseEntity<Map<String, Object>> speechToText(@RequestParam("file") MultipartFile file) {
         audioValidator.validate(file);
         StoredAudio stored = audioService.store(file);

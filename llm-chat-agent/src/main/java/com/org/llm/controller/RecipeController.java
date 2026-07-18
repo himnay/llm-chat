@@ -20,8 +20,8 @@ class RecipeController {
 
     private final RecipeService recipeService;
 
-    @Operation(summary = "Generate and refine an AI recipe for the given dish")
     @GetMapping
+    @Operation(summary = "Generate and refine an AI recipe for the given dish")
     public String generateRecipe(@NotBlank(message = "dish is required") @RequestParam String dish) {
         String draft = recipeService.getDraftRecipe(dish);
         return recipeService.refineRecipe(draft);

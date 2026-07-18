@@ -12,11 +12,11 @@ class RedisConfig {
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory(
-            @Value("${spring.data.redis.host:localhost}") String host,
             @Value("${spring.data.redis.port:6379}") int port,
             @Value("${spring.data.redis.database:0}") int database,
-            @Value("${spring.data.redis.username:}") String username,
             @Value("${spring.data.redis.password:}") String password
+            @Value("${spring.data.redis.username:}") String username,
+            @Value("${spring.data.redis.host:localhost}") String host,
     ) {
         RedisStandaloneConfiguration standalone = new RedisStandaloneConfiguration(
                 host,

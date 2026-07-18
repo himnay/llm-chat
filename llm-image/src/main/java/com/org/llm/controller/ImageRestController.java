@@ -22,14 +22,14 @@ class ImageRestController {
     private final ImageCaptionService imageCaptionService;
     private final ImageBackend imageBackend;
 
-    @Operation(summary = "Generate a text caption for a named image")
     @PostMapping("/caption")
+    @Operation(summary = "Generate a text caption for a named image")
     public String caption(@Validated @RequestBody ImageCaptionRequest request) {
         return imageCaptionService.captionImage(request.imageName(), request.message());
     }
 
-    @Operation(summary = "Generate a PNG image from a text prompt using Stability AI")
     @PostMapping(value = "/generate", produces = MediaType.IMAGE_PNG_VALUE)
+    @Operation(summary = "Generate a PNG image from a text prompt using Stability AI")
     public ResponseEntity<byte[]> generateImage(@Validated @RequestBody ImageGenerateRequest request) {
         byte[] png = imageBackend.generatePng(request.message(), request.style(), request.count());
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(png);

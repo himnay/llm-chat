@@ -12,22 +12,22 @@ class AudioValidatorTest {
 
     private final AudioValidator validator = new AudioValidator();
 
-    @DisplayName("Accepts a supported audio content type")
     @Test
+    @DisplayName("Accepts a supported audio content type")
     void acceptsSupportedAudioType() {
         MockMultipartFile file = new MockMultipartFile("file", "clip.mp3", "audio/mpeg", new byte[]{1});
         assertThatCode(() -> validator.validate(file)).doesNotThrowAnyException();
     }
 
-    @DisplayName("Rejects an empty audio file")
     @Test
+    @DisplayName("Rejects an empty audio file")
     void rejectsEmptyFile() {
         MockMultipartFile file = new MockMultipartFile("file", "clip.mp3", "audio/mpeg", new byte[0]);
         assertThatExceptionOfType(AudioValidationException.class).isThrownBy(() -> validator.validate(file));
     }
 
-    @DisplayName("Rejects a file with an unsupported content type")
     @Test
+    @DisplayName("Rejects a file with an unsupported content type")
     void rejectsUnsupportedContentType() {
         MockMultipartFile file = new MockMultipartFile("file", "doc.pdf", "application/pdf", new byte[]{1});
         assertThatExceptionOfType(AudioValidationException.class).isThrownBy(() -> validator.validate(file));
