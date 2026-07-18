@@ -25,6 +25,7 @@ public class VoiceChatService {
     public record VoiceExchange(String transcript, String aiResponse) {
     }
 
+    /** Returns the exchange. */
     public VoiceExchange exchange(MultipartFile file) {
         audioValidator.validate(file);
         StoredAudio stored = audioService.store(file);
@@ -33,6 +34,7 @@ public class VoiceChatService {
         return new VoiceExchange(transcript, aiResponse);
     }
 
+    /** Returns the speak. */
     public byte[] speak(String text) {
         return audioService.textToSpeech(text);
     }

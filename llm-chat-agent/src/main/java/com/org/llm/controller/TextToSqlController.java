@@ -24,6 +24,7 @@ class TextToSqlController {
 
     private final TextToSqlService textToSqlService;
 
+    /** Returns the text to sql. */
     @PostMapping
     @Operation(summary = "Translate a natural language question into an SQL query")
     public TextToSqlResponse textToSql(@Valid @RequestBody TextToSqlRequest request) {

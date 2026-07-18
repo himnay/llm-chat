@@ -13,6 +13,7 @@ public class ImageCaptionService {
 
     private final ChatClient chatClient;
 
+    /** Returns the caption image. */
     public String captionImage(String imageName, String message) {
         Resource imageResource = new ClassPathResource("images/" + imageName);
         return chatClient.prompt()

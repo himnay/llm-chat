@@ -13,6 +13,7 @@ public class FileReadService {
 
     private final ChatClient chatClient;
 
+    /** Reads file. */
     public String readFile(String fileName, String message) {
         Resource fileResource = new ClassPathResource("files/" + fileName);
         return chatClient.prompt()

@@ -27,6 +27,7 @@ class VoiceChatController {
 
     private final VoiceChatService voiceChatService;
 
+    /** Returns the voice chat. */
     @PostMapping("/audio/voice")
     @Operation(summary = "Send an audio file, receive an AI audio response (voice chat)")
     public ResponseEntity<byte[]> voiceChat(@RequestParam("file") MultipartFile file) {
@@ -40,6 +41,7 @@ class VoiceChatController {
                 .body(audioResponse);
     }
 
+    /** Chats with audio. */
     @PostMapping("/audio")
     @Operation(summary = "Send an audio file, receive transcript and AI text response")
     public Map<String, Object> chatWithAudio(@RequestParam("file") MultipartFile file) {

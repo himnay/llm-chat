@@ -15,6 +15,7 @@ import java.util.List;
  */
 public record ChatAnswer(String answer, List<Citation> citations, Boolean faithful) {
 
+    /** Returns the without rag. */
     public static ChatAnswer withoutRag(String answer) {
         return new ChatAnswer(answer, List.of(), null);
     }

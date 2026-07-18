@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(RagProperties.class)
 class RagConfig {
 
+    /** Defines the rag chat client builder bean. */
     @Bean
     public ChatClient.Builder ragChatClientBuilder(OpenAiChatModel openAiChatModel) {
         // Low temperature keeps query transformation/expansion deterministic (Spring AI RAG
@@ -34,6 +35,7 @@ class RagConfig {
                 .defaultOptions(OpenAiChatOptions.builder().temperature(0.0));
     }
 
+    /** Defines the compression query transformer bean. */
     @Bean
     public CompressionQueryTransformer compressionQueryTransformer(ChatClient.Builder ragChatClientBuilder) {
         return CompressionQueryTransformer.builder()
@@ -41,6 +43,7 @@ class RagConfig {
                 .build();
     }
 
+    /** Defines the rewrite query transformer bean. */
     @Bean
     public RewriteQueryTransformer rewriteQueryTransformer(ChatClient.Builder ragChatClientBuilder) {
         return RewriteQueryTransformer.builder()
@@ -49,6 +52,7 @@ class RagConfig {
                 .build();
     }
 
+    /** Defines the multi query expander bean. */
     @Bean
     public MultiQueryExpander multiQueryExpander(ChatClient.Builder ragChatClientBuilder) {
         return MultiQueryExpander.builder()
@@ -58,6 +62,7 @@ class RagConfig {
                 .build();
     }
 
+    /** Defines the retrieval augmentation advisor bean. */
     @Bean
     public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore,
                                                                       CompressionQueryTransformer compressionQueryTransformer,

@@ -15,14 +15,17 @@ public class RagFilterContext {
 
     private final ThreadLocal<Filter.Expression> expression = new ThreadLocal<>();
 
+    /** Handles set. */
     public void set(Filter.Expression value) {
         expression.set(value);
     }
 
+    /** Returns the get. */
     public Filter.Expression get() {
         return expression.get();
     }
 
+    /** Clears. */
     public void clear() {
         expression.remove();
     }

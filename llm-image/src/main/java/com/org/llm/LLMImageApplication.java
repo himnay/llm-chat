@@ -8,6 +8,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 class LLMImageApplication {
 
+    /** Application entry point. */
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         SpringApplication.run(LLMImageApplication.class, args);

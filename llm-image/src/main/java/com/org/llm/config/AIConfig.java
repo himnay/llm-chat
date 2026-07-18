@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class AIConfig {
 
+    /** Defines the chat client bean. */
     @Bean
     public ChatClient chatClient(OpenAiChatModel openAiChatModel) {
         return ChatClient.builder(openAiChatModel).build();

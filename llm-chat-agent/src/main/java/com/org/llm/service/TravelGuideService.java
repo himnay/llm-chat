@@ -25,6 +25,7 @@ public class TravelGuideService {
         this.travelGuideTemplate = travelGuideTemplate;
     }
 
+    /** Returns the prepare travel plan. */
     public TravelPlan prepareTravelPlan(String city, Integer days) {
         PromptTemplate template = new PromptTemplate(travelGuideTemplate);
         return travelPlanBackend.plan(template, Map.of("city", city, "days", days));

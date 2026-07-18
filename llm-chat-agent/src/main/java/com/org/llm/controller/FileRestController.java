@@ -19,6 +19,7 @@ class FileRestController {
 
     private final FileReadService fileReadService;
 
+    /** Returns the caption. */
     @PostMapping("/read")
     @Operation(summary = "Read a document file and answer a question about its content")
     public String caption(@Valid @RequestBody FileReadRequest request) {

@@ -16,6 +16,7 @@ import java.util.List;
 @Configuration
 class AIConfig {
 
+    /** Defines the chat client bean. */
     @Bean
     public ChatClient chatClient(OpenAiChatModel openAiChatModel, ChatMemory chatMemory) {
         return ChatClient.builder(openAiChatModel)
@@ -33,6 +34,7 @@ class AIConfig {
                 .build();
     }
 
+    /** Defines the chat memory bean. */
     @Bean
     public ChatMemory chatMemory(JdbcChatMemoryRepository repository) {
         return MessageWindowChatMemory.builder()

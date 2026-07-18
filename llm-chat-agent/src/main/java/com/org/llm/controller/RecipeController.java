@@ -20,6 +20,7 @@ class RecipeController {
 
     private final RecipeService recipeService;
 
+    /** Generates recipe. */
     @GetMapping
     @Operation(summary = "Generate and refine an AI recipe for the given dish")
     public String generateRecipe(@NotBlank(message = "dish is required") @RequestParam String dish) {

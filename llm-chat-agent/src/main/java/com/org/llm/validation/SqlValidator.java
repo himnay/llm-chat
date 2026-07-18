@@ -29,6 +29,7 @@ public class SqlValidator {
         return enforceLimit(validateReadOnly(sanitize(rawSql)), maxRows);
     }
 
+    /** Returns the sanitize. */
     public String sanitize(String sql) {
         if (sql == null || sql.isBlank()) {
             throw new SqlValidationException("model did not return SQL");
@@ -40,6 +41,7 @@ public class SqlValidator {
         return cleaned.endsWith(";") ? cleaned.substring(0, cleaned.length() - 1).trim() : cleaned;
     }
 
+    /** Validates read only. */
     public String validateReadOnly(String sql) {
         String lower = sql.trim().toLowerCase();
         if (!(lower.startsWith("select") || lower.startsWith("with"))) {
@@ -64,6 +66,7 @@ public class SqlValidator {
         return sql;
     }
 
+    /** Returns the enforce limit. */
     public String enforceLimit(String sql, int maxRows) {
         if (LIMIT_PATTERN.matcher(sql).find()) {
             return sql;

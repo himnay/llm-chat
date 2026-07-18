@@ -56,8 +56,8 @@ class AdvisorOrderTest {
             public ChatClientResponse adviseCall(ChatClientRequest req, CallAdvisorChain chain) {
                 return chain.nextCall(req);
             }
-            @Override public int getOrder() { return 0; }
             @Override public String getName() { return "TokenCountingAdvisor"; }
+            @Override public int getOrder() { return 0; }
         };
 
         SafeGuardAdvisor safeGuard = SafeGuardAdvisor.builder()

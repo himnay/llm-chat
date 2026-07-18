@@ -20,6 +20,7 @@ public class AudioValidator {
             "audio/x-m4a"
     );
 
+    /** Validates. */
     public void validate(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new AudioValidationException("audio file must not be empty");

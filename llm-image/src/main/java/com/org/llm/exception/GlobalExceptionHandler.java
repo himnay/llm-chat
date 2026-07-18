@@ -59,6 +59,7 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_GATEWAY, "IO error", ex.getMessage(), null);
     }
 
+    /** Handles generic. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         log.error("Unhandled error", ex);

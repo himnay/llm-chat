@@ -24,6 +24,7 @@ public record Citation(
         Integer page
 ) {
 
+    /** Returns the from. */
     public static Citation from(Document document) {
         Map<String, Object> metadata = document.getMetadata();
         return new Citation(

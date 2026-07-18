@@ -18,6 +18,7 @@ public class RecipeService {
                 .content();
     }
 
+    /** Returns the refine recipe. */
     public String refineRecipe(String draft) {
         return chatClient.prompt()
                 .system("You are a recipe formatter. Convert recipes into JSON with keys: 'dish', 'ingredients', 'steps'.")

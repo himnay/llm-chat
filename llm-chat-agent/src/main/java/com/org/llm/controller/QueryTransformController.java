@@ -22,6 +22,7 @@ class QueryTransformController {
 
     private final QueryTransformationService queryTransformationService;
 
+    /** Transforms. */
     @Operation(summary = "Run a single query through one of Spring AI's pre-retrieval query "
             + "transformers (rewrite, translate, compress, multi-query-expand) and return the result")
     @PostMapping("/query-transform")

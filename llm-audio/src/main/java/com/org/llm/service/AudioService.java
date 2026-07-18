@@ -33,6 +33,7 @@ public class AudioService {
     private final OpenAiAudioTranscriptionModel transcriptionModel;
     private final OpenAiAudioSpeechModel speechModel;
 
+    /** Returns the store. */
     public StoredAudio store(MultipartFile file) {
         try {
             Files.createDirectories(AUDIO_DIR);
@@ -54,6 +55,7 @@ public class AudioService {
         }
     }
 
+    /** Returns the speech to text. */
     public String speechToText(String storedFileName) {
         byte[] audioBytes;
         try {
@@ -78,6 +80,7 @@ public class AudioService {
         return response.getResult().getOutput();
     }
 
+    /** Returns the text to speech. */
     public byte[] textToSpeech(String text) {
         OpenAiAudioSpeechOptions options = OpenAiAudioSpeechOptions.builder()
                 .model("tts-1") // tts-1, tts-1-hd

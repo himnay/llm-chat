@@ -22,22 +22,26 @@ public class ChatService {
 
     private final ChatBackend chatBackend;
 
+    /** Chats. */
     @Retry(name = "llm-chat")
     @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallback")
     public ChatAnswer chat(String conversationId, String message) {
         return chatBackend.chat(systemPrompt(), normalizeConversationId(conversationId), message, null);
     }
 
+    /** Chats. */
     @Retry(name = "llm-chat")
     @CircuitBreaker(name = "llm-chat", fallbackMethod = "chatFallbackWithSource")
     public ChatAnswer chat(String conversationId, String message, String documentSource) {
         return chatBackend.chat(systemPrompt(), normalizeConversationId(conversationId), message, documentSource);
     }
 
+    /** Streams chat. */
     public Flux<ServerSentEvent<String>> streamChat(String conversationId, String message) {
         return streamChat(conversationId, message, null);
     }
 
+    /** Streams chat. */
     public Flux<ServerSentEvent<String>> streamChat(String conversationId, String message, String documentSource) {
         return chatBackend.stream(normalizeConversationId(conversationId), message, documentSource);
     }
