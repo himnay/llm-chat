@@ -138,9 +138,4 @@
         </dependency>
     </dependencies>
 
-    <!-- No jacoco-check enforcement yet: this module is newly split out of llm-chat and doesn't
-         have llm-chat-agent's test depth yet. Coverage reports still generate (prepare-agent/
-         report inherited from super-pom) — add a jacoco-check execution here (see
-         llm-chat-agent/pom.xml) once the test suite catches up. -->
-
 </project>
