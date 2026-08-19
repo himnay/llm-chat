@@ -1,8 +1,8 @@
-# <span style="color:hsl(110,68%,32%)">LLM Chat — Spring AI Production-Grade Backend</span>
+# <span style="color:hsl(110,80%,58%)">LLM Chat — Spring AI Production-Grade Backend</span>
 
 <img src="image/spring-ai-logo.png" alt="Spring AI" width="80"/>
 
-## <span style="color:hsl(119,68%,32%)">Table of contents</span>
+## <span style="color:hsl(248,80%,58%)">Table of contents</span>
 
 1. 🏗️ [Architecture](#1-architecture)
 2. 🧰 [Technology Stack](#2-technology-stack)
@@ -36,7 +36,7 @@ Spring Boot app with its own `application.yml`, API-key auth, and database (`spr
 > security, observability and project conventions as those two.
 
 <a id="1-architecture"></a>
-## <span style="color:hsl(127,68%,32%)">1. 🗺️ Architecture</span>
+## <span style="color:hsl(25,80%,58%)">1. 🗺️ Architecture</span>
 
 The reactor is three independently deployable Spring Boot applications that share no runtime
 classpath, each fronted by its own security filter chain (`ApiKeyAuthFilter` → `RateLimitFilter`)
@@ -127,7 +127,7 @@ Key things the diagram makes explicit:
 </ul>
 
 <a id="2-technology-stack"></a>
-## <span style="color:hsl(136,68%,32%)">2. 🛠️ Technology Stack</span>
+## <span style="color:hsl(163,80%,58%)">2. 🛠️ Technology Stack</span>
 
 <ul>
 
@@ -141,7 +141,7 @@ Key things the diagram makes explicit:
 </ul>
 
 <a id="3-layout"></a>
-## <span style="color:hsl(144,68%,32%)">3. 🏗️ Layout</span>
+## <span style="color:hsl(300,80%,58%)">3. 🏗️ Layout</span>
 
 Each module is a self-contained Spring Boot app under `com.org.llm.*`; the package name repeats
 across modules but they never share a classpath at runtime.
@@ -168,15 +168,15 @@ across modules but they never share a classpath at runtime.
 </ul>
 
 <a id="4-getting-started"></a>
-## <span style="color:hsl(153,68%,36%)">4. 🚀 Getting Started</span>
+## <span style="color:hsl(78,80%,58%)">4. 🚀 Getting Started</span>
 
-### <span style="color:hsl(161,68%,36%)">1. Start infrastructure</span>
+### <span style="color:hsl(215,80%,58%)">1. Start infrastructure</span>
 
 ```bash
 docker compose up -d        # Postgres, Redis, RedisInsight + Prometheus/Grafana/Tempo/Loki
 ```
 
-### <span style="color:hsl(170,68%,36%)">2. Configure secrets</span>
+### <span style="color:hsl(353,80%,58%)">2. Configure secrets</span>
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -184,7 +184,7 @@ export STABILITYAI_API_KEY=sk-...     # only for llm-image generation
 export WEATHER_API_KEY=...            # only for llm-chat-agent's weather tool
 ```
 
-### <span style="color:hsl(179,68%,36%)">3. Run each module you need</span>
+### <span style="color:hsl(130,80%,58%)">3. Run each module you need</span>
 
 ```bash
 ./mvnw -pl llm-chat-agent spring-boot:run    # port 8082
@@ -196,7 +196,7 @@ Or build/test the whole reactor from the root: `./mvnw verify`. Each module serv
 path **`/ai`** on its own port (e.g. http://localhost:8082/ai).
 
 <a id="5-authentication"></a>
-## <span style="color:hsl(187,68%,36%)">5. 🔑 Authentication</span>
+## <span style="color:hsl(268,80%,58%)">5. 🔑 Authentication</span>
 
 <ul>
 
@@ -238,7 +238,7 @@ echo "X-API-Key: $raw"
 </ul>
 
 <a id="6-routing-through-llm-gateway"></a>
-## <span style="color:hsl(196,68%,36%)">6. 🔀 Routing through llm-gateway</span>
+## <span style="color:hsl(45,80%,50%)">6. 🔀 Routing through llm-gateway</span>
 
 <ul>
 
@@ -266,9 +266,9 @@ echo "X-API-Key: $raw"
 </ul>
 
 <a id="7-endpoints"></a>
-## <span style="color:hsl(204,68%,44%)">7. 📡 Endpoints</span>
+## <span style="color:hsl(183,80%,58%)">7. 📡 Endpoints</span>
 
-### <span style="color:hsl(213,68%,44%)">`llm-chat-agent` (port 8082, under `/ai`)</span>
+### <span style="color:hsl(320,80%,58%)">`llm-chat-agent` (port 8082, under `/ai`)</span>
 
 | Method | Path                          | Description                                                                                            |
 |--------|-------------------------------|--------------------------------------------------------------------------------------------------------|
@@ -281,7 +281,7 @@ echo "X-API-Key: $raw"
 | POST   | `/api/v1/sql`                 | NL → guarded read-only SQL + results                                                                   |
 | POST   | `/api/v1/rag/query-transform` | Run a query through a single pre-retrieval transformer (rewrite/translate/compress/multi-query-expand) |
 
-### <span style="color:hsl(221,68%,44%)">`llm-audio` (port 8083, under `/ai`)</span>
+### <span style="color:hsl(98,80%,58%)">`llm-audio` (port 8083, under `/ai`)</span>
 
 | Method | Path                       | Description                                                  |
 |--------|----------------------------|--------------------------------------------------------------|
@@ -291,7 +291,7 @@ echo "X-API-Key: $raw"
 | POST   | `/api/v1/audio/to-speech`  | Text-to-speech                                               |
 | POST   | `/api/v1/audio/upload`     | Upload + process an audio file                               |
 
-### <span style="color:hsl(230,68%,44%)">`llm-image` (port 8084, under `/ai`)</span>
+### <span style="color:hsl(235,80%,58%)">`llm-image` (port 8084, under `/ai`)</span>
 
 | Method | Path                      | Description                                                     |
 |--------|---------------------------|-----------------------------------------------------------------|
@@ -299,7 +299,7 @@ echo "X-API-Key: $raw"
 | GET    | `/api/v1/images/generate` | Generate an image (gateway DALL·E, or Stability if gateway off) |
 
 <a id="8-request-flow-streaming-chat-end-to-end"></a>
-## <span style="color:hsl(239,68%,44%)">8. 🔄 Request Flow — Streaming Chat, End to End</span>
+## <span style="color:hsl(13,80%,58%)">8. 🔄 Request Flow — Streaming Chat, End to End</span>
 
 The richest single request path in this repo is `POST /ai/api/v1/chat/stream` on
 `llm-chat-agent` when running in **direct mode** (`app.gateway.enabled=false`) — it is the one
@@ -378,13 +378,13 @@ Notable details this flow surfaces that aren't visible from the endpoint table a
    graceful SSE token instead of a broken stream or a 5xx.
 
 <a id="9-observability"></a>
-## <span style="color:hsl(247,68%,44%)">9. 📊 Observability</span>
+## <span style="color:hsl(150,80%,58%)">9. 📊 Observability</span>
 
 See [`PROMETHEUS_GRAFANA_SETUP.md`](./PROMETHEUS_GRAFANA_SETUP.md). Health at
 `/ai/actuator/health`, Prometheus scrape at `/ai/actuator/prometheus`, Grafana at
 http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashboard.
 
-### <span style="color:hsl(256,68%,44%)">Actuator endpoints</span>
+### <span style="color:hsl(288,80%,58%)">Actuator endpoints</span>
 
 | Endpoint                  | Description                                                                        |
 |---------------------------|------------------------------------------------------------------------------------|
@@ -401,7 +401,7 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 </ul>
 
 <a id="10-configuration"></a>
-## <span style="color:hsl(264,68%,44%)">10. 🧱 Configuration</span>
+## <span style="color:hsl(65,80%,50%)">10. 🧱 Configuration</span>
 
 <ul>
 
@@ -412,7 +412,7 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 </ul>
 
 <a id="11-build-test"></a>
-## <span style="color:hsl(273,68%,44%)">11. ✅ Build & Test</span>
+## <span style="color:hsl(203,80%,58%)">11. ✅ Build & Test</span>
 
 ```bash
 ./mvnw verify        # compile, test, JaCoCo coverage report (target/site/jacoco)
@@ -429,13 +429,13 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 
 <a id="technology-deep-dive"></a>
 <a id="12-technology-deep-dive"></a>
-## <span style="color:hsl(281,68%,44%)">12. 🧰 Technology Deep Dive</span>
+## <span style="color:hsl(340,80%,58%)">12. 🧰 Technology Deep Dive</span>
 
 This section explains every significant library, framework, database, and infrastructure component used in this project — what it is and exactly how it is wired up here.
 
 ---
 
-### <span style="color:hsl(290,68%,44%)">Spring Boot 4.1.0</span>
+### <span style="color:hsl(118,80%,58%)">Spring Boot 4.1.0</span>
 
 **What it is.**
 
@@ -460,7 +460,7 @@ This section explains every significant library, framework, database, and infras
 
 ---
 
-### <span style="color:hsl(299,68%,44%)">Spring AI 2.0.0</span>
+### <span style="color:hsl(255,80%,58%)">Spring AI 2.0.0</span>
 
 **What it is.**
 
@@ -613,7 +613,7 @@ This endpoint is a playground for inspecting each technique's raw output — it 
 
 ---
 
-### <span style="color:hsl(307,68%,44%)">OpenAI API</span>
+### <span style="color:hsl(33,80%,58%)">OpenAI API</span>
 
 **What it is.**
 
@@ -638,7 +638,7 @@ This endpoint is a playground for inspecting each technique's raw output — it 
 
 ---
 
-### <span style="color:hsl(316,68%,44%)">Stability AI</span>
+### <span style="color:hsl(170,80%,58%)">Stability AI</span>
 
 **What it is.**
 
@@ -661,7 +661,7 @@ This endpoint is a playground for inspecting each technique's raw output — it 
 
 ---
 
-### <span style="color:hsl(324,68%,44%)">PostgreSQL 18</span>
+### <span style="color:hsl(308,80%,58%)">PostgreSQL 18</span>
 
 **What it is.**
 
@@ -695,7 +695,7 @@ authenticate against another.
 
 ---
 
-### <span style="color:hsl(333,68%,44%)">Flyway</span>
+### <span style="color:hsl(85,80%,58%)">Flyway</span>
 
 **What it is.**
 
@@ -719,7 +719,7 @@ authenticate against another.
 
 ---
 
-### <span style="color:hsl(341,68%,44%)">Redis</span>
+### <span style="color:hsl(223,80%,58%)">Redis</span>
 
 **What it is.**
 
@@ -742,7 +742,7 @@ authenticate against another.
 
 ---
 
-### <span style="color:hsl(350,68%,44%)">Spring Security</span>
+### <span style="color:hsl(0,80%,58%)">Spring Security</span>
 
 **What it is.**
 
@@ -769,7 +769,7 @@ authenticate against another.
 
 ---
 
-### <span style="color:hsl(359,68%,44%)">Request Validation, Correlation & Guardrails</span>
+### <span style="color:hsl(138,80%,58%)">Request Validation, Correlation & Guardrails</span>
 
 **What this covers.**
 
@@ -882,7 +882,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(7,68%,44%)">Micrometer + Prometheus</span>
+### <span style="color:hsl(275,80%,58%)">Micrometer + Prometheus</span>
 
 **What it is.**
 
@@ -908,7 +908,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(16,68%,44%)">Grafana</span>
+### <span style="color:hsl(53,80%,50%)">Grafana</span>
 
 **What it is.**
 
@@ -932,7 +932,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(24,68%,44%)">Grafana Tempo</span>
+### <span style="color:hsl(190,80%,58%)">Grafana Tempo</span>
 
 **What it is.**
 
@@ -956,7 +956,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(33,68%,44%)">Grafana Loki</span>
+### <span style="color:hsl(328,80%,58%)">Grafana Loki</span>
 
 **What it is.**
 
@@ -978,7 +978,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(41,68%,32%)">Spring WebFlux / Project Reactor (`Flux`)</span>
+### <span style="color:hsl(105,80%,58%)">Spring WebFlux / Project Reactor (`Flux`)</span>
 
 **What it is.**
 
@@ -1003,7 +1003,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(50,68%,32%)">Apache Tika / PDF and Markdown Document Readers</span>
+### <span style="color:hsl(243,80%,58%)">Apache Tika / PDF and Markdown Document Readers</span>
 
 **What it is.**
 
@@ -1027,7 +1027,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(59,68%,32%)">JDBC Chat Memory (Spring AI)</span>
+### <span style="color:hsl(20,80%,58%)">JDBC Chat Memory (Spring AI)</span>
 
 **What it is.**
 
@@ -1051,7 +1051,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(67,68%,32%)">Lombok</span>
+### <span style="color:hsl(158,80%,58%)">Lombok</span>
 
 **What it is.**
 
@@ -1075,7 +1075,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(76,68%,32%)">Testcontainers</span>
+### <span style="color:hsl(295,80%,58%)">Testcontainers</span>
 
 **What it is.**
 
@@ -1099,7 +1099,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(84,68%,32%)">JaCoCo</span>
+### <span style="color:hsl(73,80%,58%)">JaCoCo</span>
 
 **What it is.**
 
@@ -1121,7 +1121,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(93,68%,32%)">Git Commit ID Maven Plugin</span>
+### <span style="color:hsl(210,80%,58%)">Git Commit ID Maven Plugin</span>
 
 **What it is.**
 
@@ -1144,7 +1144,7 @@ simple, deterministic first line of defense.
 
 ---
 
-### <span style="color:hsl(101,68%,32%)">Docker Compose</span>
+### <span style="color:hsl(348,80%,58%)">Docker Compose</span>
 
 **What it is.**
 
