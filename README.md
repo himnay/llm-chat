@@ -31,8 +31,8 @@ wrapper, and `docker-compose.yml` (Postgres, Redis, observability stack). Each m
 Spring Boot app with its own `application.yml`, API-key auth, and database (`spring_ai`,
 `spring_ai_audio`, `spring_ai_image` — see `observability/init-db/`).
 
-> Sibling services: [`llm-gateway`](../llm-gateway) (multi-provider routing + guardrails) and
-> [`llm-rag-pipeline`](../llm-rag-pipeline) (ingestion + retrieval). This repo follows the same
+> Sibling services: [`llm-gateway`](https://github.com/himnay/llm-gateway) (multi-provider routing + guardrails) and
+> [`llm-rag-pipeline`](https://github.com/himnay/llm-rag/tree/main/llm-rag-pipeline) (ingestion + retrieval). This repo follows the same
 > security, observability and project conventions as those two.
 
 <a id="1-architecture"></a>
@@ -414,9 +414,17 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 <a id="11-build-test"></a>
 ## <span style="color:hsl(203,80%,58%)">11. ✅ Build & Test</span>
 
+Prerequisites: JDK 25, Docker, and the parent POM chain installed once, because
+`com.org.llm:super-pom` and `learning-bom` are not on Maven Central:
+
 ```bash
+(cd ~/projects/learning-bom && mvn -N install)
+(cd ~/projects/super-pom && mvn -N install)
 ./mvnw verify        # compile, test, JaCoCo coverage report (target/site/jacoco)
 ```
+
+CI (`.github/workflows/ci.yml`) runs the same build on every push; Testcontainers starts
+Postgres there too, so the workflow needs no service containers.
 
 <ul>
 
@@ -813,13 +821,20 @@ first — a three-stage pipeline, each stage independently unit-tested (`SqlVali
      rejected outright
    - A regex (`FORBIDDEN_PATTERN`) rejects the statement if it contains `insert`, `update`,
      `delete`, `drop`, `alter`, `truncate`, `create`, `grant`, `revoke`, `copy`, `call`, `do`,
-     `vacuum`, or `analyze` as a whole word anywhere in the text — this catches mutating
-     statements hidden inside a CTE or subquery, not just at the start of the string
+     `vacuum`, `analyze` or `into` as a whole word anywhere in the text — this catches mutating
+     statements hidden inside a CTE or subquery, not just at the start of the string, and
+     `SELECT ... INTO new_table`, which creates a table
+   - A second regex (`FORBIDDEN_FUNCTION_PATTERN`) rejects calls a `SELECT` could still make to
+     read server files, run dynamic SQL, sleep, or change state: every `pg_*` and `lo_*` function
+     (`pg_read_file`, `pg_sleep`, `lo_import`, ...), `dblink*`, `set_config`, `current_setting`,
+     the `*_to_xml` family (`query_to_xml` runs an arbitrary query string), `nextval`, `setval`
    - A literal `;` anywhere in the SQL is rejected, blocking stacked/multiple statements
-   - Every table referenced after a `FROM` or `JOIN` keyword is extracted via regex and checked
-     against a **hard-coded allow-list** of four tables
+   - Every table in every `FROM` list (including comma-separated ones such as
+     `FROM text2sql_orders o, text2sql_customers c`), every `JOIN` target and every subquery is
+     checked against a **hard-coded allow-list** of four tables
      (`text2sql_customers`, `text2sql_products`, `text2sql_orders`, `text2sql_order_items`); a
-     query cannot escape the demo schema even if it's syntactically valid read-only SQL
+     reference that isn't a plain, optionally schema-qualified name (for example a quoted
+     `"pg_user"`) is rejected, so a query cannot escape the demo schema
 3. **`enforceLimit`** — appends `LIMIT <maxRows>` to the query unless it already has an explicit
    `LIMIT` clause or is a `SELECT COUNT(...)` aggregate (which returns exactly one row regardless);
    `maxRows` itself is clamped server-side to `[1, 200]` by `TextToSqlService.normalizeMaxRows`,
@@ -831,6 +846,12 @@ the offending SQL back to the model for one repair attempt, and the repaired SQL
 the **exact same** `SqlValidator.prepare()` guardrail before being executed — there's no bypass
 path for the self-healing retry. Any `SqlValidationException` raised anywhere in the pipeline is
 translated to a `400` JSON `ApiError` by `GlobalExceptionHandler`, never a raw stack trace.
+
+The validator is pattern matching, so the database enforces the same rules a second time:
+`ReadOnlyQueryExecutor` runs the guarded SQL in a **read-only transaction** with a timeout
+(`app.text2sql.query-timeout-seconds`, default 10). A write that slipped past the patterns fails
+with `cannot execute ... in a read-only transaction`, and a runaway query is cancelled.
+`ReadOnlyQueryExecutorTest` proves both against a real Postgres container.
 
 **`AudioValidator` — upload content-type guardrail (`llm-audio`, `validation/AudioValidator.java`)**
 
