@@ -1,62 +1,39 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # The context-load test boots llm-chat-agent: Flyway migrations + JDBC chat memory need
-    # Postgres, and the Redis connection factory needs Redis. llm-audio and llm-image each need
-    # their own database (created in the "Create per-module databases" step below) but no Redis.
-    # LLM keys are stubbed (no live calls happen during context load).
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_DB: spring_ai
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d spring_ai"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
+      # The parent chain (super-pom -> learning-bom) is not published to Maven Central,
+      # so check both out and install them into the runner's local repository first.
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '21'
+          repository: himnay/learning-bom
+          path: learning-bom
+      - uses: actions/checkout@v4
+        with:
+          repository: himnay/super-pom
+          path: super-pom
+      - uses: actions/checkout@v4
+        with:
+          path: llm-chat
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
           cache: maven
-
-      - name: Create per-module databases
-        run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE spring_ai_audio;"
-          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE spring_ai_image;"
-
-      - name: Build & test
+      - name: Install learning-bom
+        run: mvn -B -N install
+        working-directory: learning-bom
+      - name: Install super-pom
+        run: mvn -B -N install
+        working-directory: super-pom
+      # The context test starts PostgreSQL through Testcontainers and stubs the LLM keys,
+      # so no service containers or secrets are needed.
+      - name: Build and test
         run: ./mvnw -B verify
-        env:
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
+        working-directory: llm-chat
