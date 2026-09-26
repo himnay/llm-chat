@@ -18,6 +18,7 @@ public class TextToSqlService {
     private final ChatClient chatClient;
     private final JdbcTemplate jdbcTemplate;
     private final SqlValidator sqlValidator;
+    private final ReadOnlyQueryExecutor readOnlyQueryExecutor;
 
     /** Processes. */
     public TextToSqlResponse process(TextToSqlRequest request) {
@@ -31,12 +32,12 @@ public class TextToSqlService {
 
         if (!Boolean.TRUE.equals(request.dryRun())) {
             try {
-                rows = jdbcTemplate.queryForList(executableSql);
+                rows = readOnlyQueryExecutor.query(executableSql);
             } catch (BadSqlGrammarException ex) {
                 repaired = true;
                 String fixedSql = repairSql(request.question(), executableSql, ex.getMessage(), schemaContext, maxRows);
                 executableSql = sqlValidator.prepare(fixedSql, maxRows);
-                rows = jdbcTemplate.queryForList(executableSql);
+                rows = readOnlyQueryExecutor.query(executableSql);
             }
         }
 
