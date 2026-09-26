@@ -109,6 +109,11 @@ resilience4j:
         retry-exceptions:
         - java.io.IOException
         - org.springframework.web.client.ResourceAccessException
+        # ChatAgentClient is a WebClient: connection failures and gateway-type 5xx surface as these
+        - org.springframework.web.reactive.function.client.WebClientRequestException
+        - org.springframework.web.reactive.function.client.WebClientResponseException$BadGateway
+        - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+        - org.springframework.web.reactive.function.client.WebClientResponseException$GatewayTimeout
 
 app:
   metadata:

@@ -443,7 +443,7 @@ This section explains every significant library, framework, database, and infras
 
 ---
 
-### <span style="color:hsl(118,80%,58%)">Spring Boot 4.1.0</span>
+### <span style="color:hsl(118,80%,58%)">Spring Boot 4.1.1</span>
 
 **What it is.**
 
@@ -468,7 +468,7 @@ This section explains every significant library, framework, database, and infras
 
 ---
 
-### <span style="color:hsl(255,80%,58%)">Spring AI 2.0.0</span>
+### <span style="color:hsl(255,80%,58%)">Spring AI 2.0.1</span>
 
 **What it is.**
 
@@ -499,7 +499,26 @@ This section explains every significant library, framework, database, and infras
 
 </ul>
 
+How a `@Tool` call travels: the tool definitions go out with the request, the model answers with a tool
+call instead of text, Spring AI runs the method and sends the result back, and only then does the model
+write the final answer:
+
+<p align="center">
+  <img src="image/spring-ai-tool-calling-flow.jpg" alt="Tool calling: chat request with tool definitions to the AI model, model asks for a tool call, Spring AI executes the function, result returned to the model, final chat response" width="620"/>
+</p>
+
+<p align="center"><sub>Diagram: <a href="https://docs.spring.io/spring-ai/reference/api/tools.html">Spring AI reference — Tool Calling</a>, Apache-2.0.</sub></p>
+
 **Advisor chain ordering**
+
+Each advisor wraps the call — it can rewrite the request on the way in and the response on the way out,
+and the chain is ordered:
+
+<p align="center">
+  <img src="image/spring-ai-advisors-flow.jpg" alt="Spring AI advisor flow: prompt becomes a ChatClientRequest, advisors act before the chat model call and after it, the ChatClientResponse becomes the ChatResponse" width="420"/>
+</p>
+
+<p align="center"><sub>Diagram: <a href="https://docs.spring.io/spring-ai/reference/">Spring AI reference docs</a>, Apache-2.0.</sub></p>
 
 The three default advisors fire in a fixed order on every `ChatClient` call:
 
@@ -874,7 +893,7 @@ with `cannot execute ... in a read-only transaction`, and a runaway query is can
 
 **`SafeGuardAdvisor` — LLM-level guardrail (`llm-chat-agent`, configured in `AIConfig`)**
 
-Already introduced under "Spring AI 2.0.0" above; called out again here because it's the guardrail
+Already introduced under "Spring AI 2.0.1" above; called out again here because it's the guardrail
 that runs *before* validation of any kind touches the request — see the "Advisor chain ordering"
 table and the streaming sequence diagram above for exactly when it fires relative to memory lookup
 and the model call. It matches on a fixed phrase list (`"ignore previous instructions"`,

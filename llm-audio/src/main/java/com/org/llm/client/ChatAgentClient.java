@@ -3,6 +3,8 @@ package com.org.llm.client;
 import com.org.llm.client.dto.ChatAgentChatRequest;
 import com.org.llm.client.dto.ChatAgentChatResponse;
 import com.org.llm.config.ChatAgentProperties;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,7 +29,13 @@ public class ChatAgentClient {
         this.properties = properties;
     }
 
-    /** Chats. */
+    /**
+     * Asks {@code llm-chat-agent} for a reply. Retried, then short-circuited to a canned answer
+     * while the agent is failing. These annotations used to sit on a {@code VoiceChatService}
+     * method that the service called on itself, which bypassed the proxy — so they never ran.
+     */
+    @Retry(name = "llm-chat-agent")
+    @CircuitBreaker(name = "llm-chat-agent", fallbackMethod = "chatFallback")
     public String chat(String conversationId, String message, String documentSource) {
         ChatAgentChatResponse response = webClient.post()
                 .uri("/chat")
@@ -40,6 +48,12 @@ public class ChatAgentClient {
             throw new IllegalStateException("llm-chat-agent returned no answer");
         }
         return response.answer();
+    }
+
+    @SuppressWarnings("unused")
+    private String chatFallback(String conversationId, String message, String documentSource, Throwable t) {
+        log.warn("llm-chat-agent unavailable, answering with fallback: {}", t.getMessage());
+        return "I'm temporarily unavailable. Please try again in a moment.";
     }
 
     private Duration timeout() {
