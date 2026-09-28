@@ -4,7 +4,9 @@
 # Usage: docker build --build-arg MODULE=llm-audio --build-arg PORT=8083 -t llm-audio .
 
 # ---- build stage ----
-FROM eclipse-temurin:25-jdk AS build
+# Java 27 images: eclipse-temurin:27 wasn't on Docker Hub yet (Sept 2026), so these stages use
+# SapMachine 27, an OpenJDK build that is also a Docker Official Image.
+FROM sapmachine:27-jdk-ubuntu AS build
 ARG MODULE=llm-chat-agent
 WORKDIR /app
 COPY .mvn/ .mvn/
@@ -19,7 +21,7 @@ COPY llm-image/src llm-image/src
 RUN ./mvnw -q -B -pl ${MODULE} -am -DskipTests clean package
 
 # ---- layer extraction stage ----
-FROM eclipse-temurin:25-jre AS extract
+FROM sapmachine:27-jre-ubuntu AS extract
 ARG MODULE=llm-chat-agent
 WORKDIR /app
 COPY --from=build /app/${MODULE}/target/*.jar app.jar
@@ -27,10 +29,15 @@ COPY --from=build /app/${MODULE}/target/*.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
 # ---- runtime stage ----
-FROM eclipse-temurin:25-jre
+FROM sapmachine:27-jre-ubuntu
 ARG PORT=8082
 WORKDIR /app
-RUN useradd --system --uid 10001 appuser
+# The SapMachine image has no curl; the HEALTHCHECK below needs it
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+# llm-chat-agent's logback config writes logs/llm-chat.json under /app, which the non-root user must be able to create
+RUN useradd --system --uid 10001 appuser \
+    && mkdir -p /app/logs && chown appuser /app/logs
 COPY --from=extract /app/extracted/dependencies/ ./
 COPY --from=extract /app/extracted/spring-boot-loader/ ./
 COPY --from=extract /app/extracted/snapshot-dependencies/ ./

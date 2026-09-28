@@ -414,7 +414,7 @@ http://localhost:3000 (admin/admin) with the auto-provisioned **LLM Chat** dashb
 <a id="11-build-test"></a>
 ## <span style="color:hsl(203,80%,58%)">11. ✅ Build & Test</span>
 
-Prerequisites: JDK 25, Docker, and the parent POM chain installed once, because
+Prerequisites: JDK 27, Docker, and the parent POM chain installed once, because
 `com.org.llm:super-pom` and `learning-bom` are not on Maven Central:
 
 ```bash
@@ -450,7 +450,7 @@ This section explains every significant library, framework, database, and infras
 <ul>
 
 - Spring Boot is an opinionated framework that auto-configures a production-ready Java application from a single `main` class and a classpath of starter JARs
-- Version 4.x requires Java 17+ and brings the `jakarta.*` namespace (Jakarta EE 11); this project runs on Java 25
+- Version 4.x requires Java 17+ and brings the `jakarta.*` namespace (Jakarta EE 11); this project runs on Java 27
 - Auto-configuration is now further modularised — each technology ships its own auto-config module rather than bundling everything in one jar
 
 </ul>
